@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Government Schemes • Krishi Mitra</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+  <script src="https://unpkg.com/feather-icons"></script>
+  <script src="components/navbar.js"></script>
+  <script src="components/footer.js"></script>
+  <style>
+    .scheme-card {
+      transition: all 0.3s ease;
+    }
+    .scheme-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+    }
+    .category-btn {
+      transition: all 0.2s ease;
+    }
+    .category-btn:hover {
+      background: #f3f4f6;
+      transform: translateY(-1px);
+    }
+    .category-btn.active {
+      background: linear-gradient(to right, #16a34a, #22c55e);
+      color: white;
+    }
+  </style>
+  <script>
+    tailwind && (tailwind.config = {
+    theme: { extend: { fontFamily: { poppins: ['Poppins','sans-serif'] }, colors: { primary:'#16A34A', accent:'#15803D' } } }
+    });
+  </script>
+</head>
+<body class="font-poppins">
+  <!-- App Navbar (same as other pages) -->
+  <nav class="bg-white shadow-md sticky top-0 z-50">
+    <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+      <a href="{% url 'home' %}" class="flex items-center space-x-2">
+        <i data-feather="sun" class="text-primary"></i>
+        <span class="text-xl font-bold text-primary">Krishi <span>Mitra</span></span>
+      </a>
+      <div class="hidden md:flex space-x-6">
+        <a href="{% url 'dashboard' %}" class="text-gray-700 hover:text-primary transition flex items-center"><i data-feather="grid" class="w-4 h-4 mr-1"></i>Dashboard</a>
+        <a href="{% url 'forum' %}" class="text-gray-700 hover:text-primary transition flex items-center"><i data-feather="message-square" class="w-4 h-4 mr-1"></i>Forum</a>
+        <a href="{% url 'chatbot' %}" class="text-gray-700 hover:text-primary transition flex items-center"><i data-feather="cpu" class="w-4 h-4 mr-1"></i>Chatbot</a>
+        <a href="{% url 'weather_updates' %}" class="text-gray-700 hover:text-primary transition flex items-center"><i data-feather="cloud" class="w-4 h-4 mr-1"></i>Weather</a>
+        <a href="{% url 'learning' %}" class="text-gray-700 hover:text-primary transition flex items-center"><i data-feather="book-open" class="w-4 h-4 mr-1"></i>Learning</a>
+        <a href="{% url 'schemes' %}" class="text-gray-700 hover:text-primary transition flex items-center"><i data-feather="award" class="w-4 h-4 mr-1"></i>Schemes</a>
+        <a href="{% url 'profile_page' %}" class="text-gray-700 hover:text-primary transition flex items-center"><i data-feather="user" class="w-4 h-4 mr-1"></i>Profile</a>
+        <a href="{% url 'settings_page' %}" class="text-gray-700 hover:text-primary transition flex items-center"><i data-feather="settings" class="w-4 h-4 mr-1"></i>Settings</a>
+      </div>
+      <div class="hidden md:block">
+        {% if request.user.is_authenticated %}
+          <a href="{% url 'logout' %}" class="text-primary hover:text-accent">Logout</a>
+        {% else %}
+          <a href="{% url 'login' %}" class="bg-gradient-to-r from-primary to-accent text-white px-4 py-2 rounded-full hover:shadow-lg transition inline-block">Join Now</a>
+        {% endif %}
+      </div>
+      <button class="md:hidden focus:outline-none" id="mobile-menu-button">
+        <i data-feather="menu"></i>
+      </button>
+    </div>
+    <!-- Mobile Menu -->
+    <div class="md:hidden hidden bg-white py-2 px-4 shadow-lg" id="mobile-menu">
+      <a href="{% url 'dashboard' %}" class="block py-2 text-gray-700 hover:text-primary flex items-center"><i data-feather="grid" class="w-4 h-4 mr-2"></i>Dashboard</a>
+      <a href="{% url 'forum' %}" class="block py-2 text-gray-700 hover:text-primary flex items-center"><i data-feather="message-square" class="w-4 h-4 mr-2"></i>Forum</a>
+      <a href="{% url 'chatbot' %}" class="block py-2 text-gray-700 hover:text-primary flex items-center"><i data-feather="cpu" class="w-4 h-4 mr-2"></i>Chatbot</a>
+      <a href="{% url 'weather_updates' %}" class="block py-2 text-gray-700 hover:text-primary flex items-center"><i data-feather="cloud" class="w-4 h-4 mr-2"></i>Weather</a>
+      <a href="{% url 'learning' %}" class="block py-2 text-gray-700 hover:text-primary flex items-center"><i data-feather="book-open" class="w-4 h-4 mr-2"></i>Learning</a>
+      <a href="{% url 'schemes' %}" class="block py-2 text-gray-700 hover:text-primary flex items-center"><i data-feather="award" class="w-4 h-4 mr-2"></i>Schemes</a>
+      <a href="{% url 'profile_page' %}" class="block py-2 text-gray-700 hover:text-primary flex items-center"><i data-feather="user" class="w-4 h-4 mr-2"></i>Profile</a>
+      <a href="{% url 'settings_page' %}" class="block py-2 text-gray-700 hover:text-primary flex items-center"><i data-feather="settings" class="w-4 h-4 mr-2"></i>Settings</a>
+      {% if request.user.is_authenticated %}
+        <a href="{% url 'logout' %}" class="block py-2 text-gray-700 hover:text-primary">Logout</a>
+      {% else %}
+        <a href="{% url 'login' %}" class="block py-2 bg-gradient-to-r from-primary to-accent text-white px-4 rounded-full text-center">Join Now</a>
+      {% endif %}
+    </div>
+  </nav>
+    
+  <main class="container mx-auto px-4 py-16">
+    <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+      <!-- Hero Section -->
+      <div class="relative bg-cover bg-center h-64" style="background-image: url('https://srdalvifoundation.com/wp-content/uploads/2023/06/Blog-Image-9.png')">
+        <div class="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center">
+          <h1 class="text-4xl md:text-5xl font-bold text-white text-center">Government Schemes</h1>
+        </div>
+      </div>
+            
+      <div class="grid md:grid-cols-4 gap-8 p-6">
+        <!-- Main Content -->
+        <section class="md:col-span-3">
+          <!-- Categories -->
+          <div class="flex flex-wrap gap-2 mb-6">
+            <button class="category-btn active px-4 py-2 bg-gradient-to-r from-primary to-accent text-white rounded-full text-sm">
+              All Schemes
+            </button>
+            <button class="category-btn px-4 py-2 bg-white border rounded-full text-sm flex items-center">
+              <i data-feather="award" class="w-4 h-4 mr-1"></i> Subsidies
+            </button>
+            <button class="category-btn px-4 py-2 bg-white border rounded-full text-sm flex items-center">
+              <i data-feather="shield" class="w-4 h-4 mr-1"></i> Insurance
+            </button>
+            <button class="category-btn px-4 py-2 bg-white border rounded-full text-sm flex items-center">
+              <i data-feather="credit-card" class="w-4 h-4 mr-1"></i> Loans
+            </button>
+            <button class="category-btn px-4 py-2 bg-white border rounded-full text-sm flex items-center">
+              <i data-feather="tool" class="w-4 h-4 mr-1"></i> Equipment
+            </button>
+          </div>
+
+          <!-- Schemes Grid -->
+          <div class="grid md:grid-cols-2 gap-6">
+            <!-- Scheme Card 1 -->
+            <article class="scheme-card bg-white rounded-xl shadow p-6 hover:shadow-lg">
+              <div class="flex items-center mb-4">
+                <div class="w-12 h-12 rounded-full bg-green-100 text-primary flex items-center justify-center mr-3">
+                  <i data-feather="award" class="w-5 h-5"></i>
+                </div>
+                <h2 class="text-xl font-semibold text-gray-800">PM-KISAN Scheme</h2>
+              </div>
+              <p class="text-gray-600 mb-4">Provides income support of ₹6,000 per year to all eligible farmer families across the country.</p>
+              <div class="flex flex-wrap gap-2 mb-4">
+                <span class="px-2 py-1 bg-green-50 text-primary text-xs rounded-full">Income Support</span>
+                <span class="px-2 py-1 bg-green-50 text-primary text-xs rounded-full">₹6,000/year</span>
+                <span class="px-2 py-1 bg-green-50 text-primary text-xs rounded-full">Nationwide</span>
+              </div>
+              <a href="#" class="inline-flex items-center text-primary hover:text-green-700">
+                Learn More <i data-feather="arrow-right" class="w-4 h-4 ml-1"></i>
+              </a>
+            </article>
+
+            <!-- Scheme Card 2 -->
+            <article class="scheme-card bg-white rounded-xl shadow p-6 hover:shadow-lg">
+              <div class="flex items-center mb-4">
+                <div class="w-12 h-12 rounded-full bg-green-100 text-primary flex items-center justify-center mr-3">
+                  <i data-feather="shield" class="w-5 h-5"></i>
+                </div>
+                <h2 class="text-xl font-semibold text-gray-800">PM Fasal Bima Yojana</h2>
+              </div>
+              <p class="text-gray-600 mb-4">Crop insurance scheme to provide financial support to farmers suffering crop loss/damage.</p>
+              <div class="flex flex-wrap gap-2 mb-4">
+                <span class="px-2 py-1 bg-green-50 text-primary text-xs rounded-full">Insurance</span>
+                <span class="px-2 py-1 bg-green-50 text-primary text-xs rounded-full">Premium 1.5-5%</span>
+                <span class="px-2 py-1 bg-green-50 text-primary text-xs rounded-full">All Crops</span>
+              </div>
+              <a href="#" class="inline-flex items-center text-primary hover:text-green-700">
+                Learn More <i data-feather="arrow-right" class="w-4 h-4 ml-1"></i>
+              </a>
+            </article>
+
+            <!-- Scheme Card 3 -->
+            <article class="scheme-card bg-white rounded-xl shadow p-6 hover:shadow-lg">
+              <div class="flex items-center mb-4">
+                <div class="w-12 h-12 rounded-full bg-green-100 text-primary flex items-center justify-center mr-3">
+                  <i data-feather="credit-card" class="w-5 h-5"></i>
+                </div>
+                <h2 class="text-xl font-semibold text-gray-800">Kisan Credit Card</h2>
+              </div>
+              <p class="text-gray-600 mb-4">Provides farmers with timely access to credit at low interest rates (4% interest subvention).</p>
+              <div class="flex flex-wrap gap-2 mb-4">
+                <span class="px-2 py-1 bg-green-50 text-primary text-xs rounded-full">Loan</span>
+                <span class="px-2 py-1 bg-green-50 text-primary text-xs rounded-full">Up to ₹3 lakh</span>
+                <span class="px-2 py-1 bg-green-50 text-primary text-xs rounded-full">4% Interest</span>
+              </div>
+              <a href="#" class="inline-flex items-center text-primary hover:text-green-700">
+                Learn More <i data-feather="arrow-right" class="w-4 h-4 ml-1"></i>
+              </a>
+            </article>
+
+            <!-- Scheme Card 4 -->
+            <article class="scheme-card bg-white rounded-xl shadow p-6 hover:shadow-lg">
+              <div class="flex items-center mb-4">
+                <div class="w-12 h-12 rounded-full bg-green-100 text-primary flex items-center justify-center mr-3">
+                  <i data-feather="tool" class="w-5 h-5"></i>
+                </div>
+                <h2 class="text-xl font-semibold text-gray-800">Subsidy on Farm Equipment</h2>
+              </div>
+              <p class="text-gray-600 mb-4">50-80% subsidy on purchase of agricultural implements like power tillers, tractors etc.</p>
+              <div class="flex flex-wrap gap-2 mb-4">
+                <span class="px-2 py-1 bg-green-50 text-primary text-xs rounded-full">Subsidy</span>
+                <span class="px-2 py-1 bg-green-50 text-primary text-xs rounded-full">50-80%</span>
+                <span class="px-2 py-1 bg-green-50 text-primary text-xs rounded-full">Equipment</span>
+              </div>
+              <a href="#" class="inline-flex items-center text-primary hover:text-green-700">
+                Learn More <i data-feather="arrow-right" class="w-4 h-4 ml-1"></i>
+              </a>
+            </article>
+
+            <!-- Scheme Card 5 -->
+            <article class="scheme-card bg-white rounded-xl shadow p-6 hover:shadow-lg">
+              <div class="flex items-center mb-4">
+                <div class="w-12 h-12 rounded-full bg-green-100 text-primary flex items-center justify-center mr-3">
+                  <i data-feather="droplet" class="w-5 h-5"></i>
+                </div>
+                <h2 class="text-xl font-semibold text-gray-800">Micro Irrigation Fund</h2>
+              </div>
+              <p class="text-gray-600 mb-4">Promotes micro-irrigation through subsidies up to 55% for small/marginal farmers.</p>
+              <div class="flex flex-wrap gap-2 mb-4">
+                <span class="px-2 py-1 bg-green-50 text-primary text-xs rounded-full">Irrigation</span>
+                <span class="px-2 py-1 bg-green-50 text-primary text-xs rounded-full">55% Subsidy</span>
+                <span class="px-2 py-1 bg-green-50 text-primary text-xs rounded-full">Water Saving</span>
+              </div>
+              <a href="#" class="inline-flex items-center text-primary hover:text-green-700">
+                Learn More <i data-feather="arrow-right" class="w-4 h-4 ml-1"></i>
+              </a>
+            </article>
+
+            <!-- Scheme Card 6 -->
+            <article class="scheme-card bg-white rounded-xl shadow p-6 hover:shadow-lg">
+              <div class="flex items-center mb-4">
+                <div class="w-12 h-12 rounded-full bg-green-100 text-primary flex items-center justify-center mr-3">
+                  <i data-feather="database" class="w-5 h-5"></i>
+                </div>
+                <h2 class="text-xl font-semibold text-gray-800">Soil Health Card</h2>
+              </div>
+              <p class="text-gray-600 mb-4">Free soil testing to help farmers understand nutrient status and receive fertilizer recommendations.</p>
+              <div class="flex flex-wrap gap-2 mb-4">
+                <span class="px-2 py-1 bg-green-50 text-primary text-xs rounded-full">Testing</span>
+                <span class="px-2 py-1 bg-green-50 text-primary text-xs rounded-full">Free</span>
+                <span class="px-2 py-1 bg-green-50 text-primary text-xs rounded-full">Soil Analysis</span>
+              </div>
+              <a href="#" class="inline-flex items-center text-primary hover:text-green-700">
+                Learn More <i data-feather="arrow-right" class="w-4 h-4 ml-1"></i>
+              </a>
+            </article>
+          </div>
+
+          <!-- Pagination -->
+          <div class="mt-8 flex justify-center space-x-2">
+            <button class="px-4 py-2 bg-white border rounded-lg hover:bg-gray-50 flex items-center">
+              <i data-feather="chevron-left" class="w-4 h-4 mr-1"></i> Previous
+            </button>
+            <button class="px-4 py-2 bg-gradient-to-r from-primary to-accent text-white rounded-lg">1</button>
+            <button class="px-4 py-2 bg-white border rounded-lg hover:bg-gray-50">2</button>
+            <button class="px-4 py-2 bg-white border rounded-lg hover:bg-gray-50">3</button>
+            <button class="px-4 py-2 bg-white border rounded-lg hover:bg-gray-50 flex items-center">
+              Next <i data-feather="chevron-right" class="w-4 h-4 ml-1"></i>
+            </button>
+          </div>
+        </section>
+
+        <!-- Sidebar -->
+        <aside class="space-y-6">
+          <!-- Latest Updates -->
+          <div class="bg-white rounded-xl shadow p-6">
+            <h3 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+              <i data-feather="bell" class="w-5 h-5 mr-2 text-primary"></i>
+              Latest Updates
+            </h3>
+            <ul class="space-y-3 text-sm">
+              <li class="pb-3 border-b border-gray-100">
+                <p class="text-gray-600">PM-KISAN 13th installment released</p>
+                <p class="text-xs text-gray-400 mt-1">2 days ago</p>
+              </li>
+              <li class="pb-3 border-b border-gray-100">
+                <p class="text-gray-600">New subsidy rates for drip irrigation</p>
+                <p class="text-xs text-gray-400 mt-1">1 week ago</p>
+              </li>
+              <li class="pb-3 border-b border-gray-100">
+                <p class="text-gray-600">KCC application deadline extended</p>
+                <p class="text-xs text-gray-400 mt-1">2 weeks ago</p>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Eligibility Checker -->
+          <div class="bg-white rounded-xl shadow p-6">
+            <h3 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+              <i data-feather="check-circle" class="w-5 h-5 mr-2 text-primary"></i>
+              Eligibility Checker
+            </h3>
+            <div class="space-y-3">
+              <div class="flex items-center">
+                <input type="checkbox" id="smallFarmer" class="rounded text-primary focus:ring-primary">
+                <label for="smallFarmer" class="ml-2 text-sm text-gray-600">Small/Marginal Farmer</label>
+              </div>
+              <div class="flex items-center">
+                <input type="checkbox" id="womenFarmer" class="rounded text-primary focus:ring-primary">
+                <label for="womenFarmer" class="ml-2 text-sm text-gray-600">Women Farmer</label>
+              </div>
+              <div class="flex items-center">
+                <input type="checkbox" id="scstFarmer" class="rounded text-primary focus:ring-primary">
+                <label for="scstFarmer" class="ml-2 text-sm text-gray-600">SC/ST Farmer</label>
+              </div>
+              <button class="w-full mt-3 bg-gradient-to-r from-primary to-accent text-white px-4 py-2 rounded-lg hover:opacity-90 text-sm">
+                Check Eligibility
+              </button>
+            </div>
+          </div>
+
+          <!-- Quick Links -->
+          <div class="bg-white rounded-xl shadow p-6">
+            <h3 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+              <i data-feather="link" class="w-5 h-5 mr-2 text-primary"></i>
+              Quick Links
+            </h3>
+            <ul class="space-y-3">
+              <li>
+                <a href="#" class="flex items-center p-3 hover:bg-gray-50 rounded-lg transition">
+                  <span class="w-8 h-8 rounded-full bg-green-100 text-primary flex items-center justify-center mr-3">
+                    <i data-feather="external-link" class="w-4 h-4"></i>
+                  </span>
+                  <span class="font-medium text-sm">PM-KISAN Portal</span>
+                </a>
+              </li>
+              <li>
+                <a href="#" class="flex items-center p-3 hover:bg-gray-50 rounded-lg transition">
+                  <span class="w-8 h-8 rounded-full bg-green-100 text-primary flex items-center justify-center mr-3">
+                    <i data-feather="external-link" class="w-4 h-4"></i>
+                  </span>
+                  <span class="font-medium text-sm">PMFBY Website</span>
+                </a>
+              </li>
+              <li>
+                <a href="#" class="flex items-center p-3 hover:bg-gray-50 rounded-lg transition">
+                  <span class="w-8 h-8 rounded-full bg-green-100 text-primary flex items-center justify-center mr-3">
+                    <i data-feather="external-link" class="w-4 h-4"></i>
+                  </span>
+                  <span class="font-medium text-sm">Soil Health Card Portal</span>
+                </a>
+              </li>
+            </ul>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </main>
+
+  <custom-footer></custom-footer>
+
+  <script src="script.js"></script>
+  <script>
+    feather.replace();
+
+    // Mobile menu toggle for the navbar
+    const mobileMenuButton = document.getElementById('mobile-menu-button');
+    const mobileMenu = document.getElementById('mobile-menu');
+    mobileMenuButton?.addEventListener('click', () => mobileMenu.classList.toggle('hidden'));
+
+    // Category filter functionality
+    document.querySelectorAll('.category-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        document.querySelector('.category-btn.active')?.classList.remove('active');
+        this.classList.add('active');
+      });
+    });
+
+    // Scheme card hover effects
+    document.querySelectorAll('.scheme-card').forEach(card => {
+      card.addEventListener('mouseenter', function() {
+        this.style.boxShadow = '0 10px 25px -5px rgba(0, 0, 0, 0.1)';
+      });
+      card.addEventListener('mouseleave', function() {
+        this.style.boxShadow = '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)';
+      });
+    });
+  </script>
+</body>
+</html>

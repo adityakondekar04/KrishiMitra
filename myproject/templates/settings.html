@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% block title %}Settings • Krishi Mitra{% endblock %}
+{% block content %}
+  <main class="container mx-auto px-4 py-8">
+    <h1 class="text-2xl font-semibold text-gray-800 mb-4">Settings</h1>
+    <form id="settingsForm" class="bg-white rounded-xl shadow p-4 max-w-xl space-y-4">
+      <div>
+        <label class="block text-sm text-gray-600">Notifications</label>
+        <select class="mt-1 w-full border rounded px-3 py-2">
+          <option>All</option>
+          <option>Important only</option>
+          <option>None</option>
+        </select>
+      </div>
+      <div>
+        <label class="block text-sm text-gray-600">Language</label>
+        <select class="mt-1 w-full border rounded px-3 py-2">
+          <option>English</option>
+          <option>Hindi</option>
+          <option>Marathi</option>
+        </select>
+      </div>
+      <div>
+        <label class="block text-sm text-gray-600">Account</label>
+        <div class="mt-1 space-x-2">
+          <button type="button" class="px-3 py-1 border rounded">Change Password</button>
+          <button type="button" class="px-3 py-1 border rounded">Delete Account</button>
+        </div>
+      </div>
+      <button class="bg-gradient-to-r from-primary to-accent text-white px-4 py-2 rounded">Save Changes</button>
+    </form>
+  </main>
+  <script>
+    document.getElementById('settingsForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const toast = document.createElement('div');
+      toast.className = 'fixed bottom-5 left-1/2 -translate-x-1/2 bg-green-600 text-white px-4 py-2 rounded shadow';
+      toast.textContent = 'Settings saved';
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 1500);
+    });
+  </script>
+{% endblock %}

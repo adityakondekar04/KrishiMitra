@@ -1,0 +1,322 @@
+{% extends 'base.html' %}
+{% block title %}My Profile • Krishi Mitra{% endblock %}
+{% block content %}
+  <main class="container mx-auto px-4 py-16">
+    <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+      <!-- Hero Section -->
+      <div class="relative bg-cover bg-center h-64" style="background-image: url('https://images.pexels.com/photos/1334312/pexels-photo-1334312.jpeg?cs=srgb&dl=pexels-designstrive-1334312.jpg&fm=jpg')">
+        <div class="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center">
+          <h1 class="text-4xl md:text-5xl font-bold text-white text-center">My Profile</h1>
+        </div>
+      </div>
+
+      <div class="grid md:grid-cols-3 gap-8 p-6">
+        <!-- Main Content -->
+        <section class="md:col-span-2 space-y-6">
+          <!-- Create Post -->
+          <div class="bg-white rounded-xl shadow p-6">
+            <div class="flex items-center justify-between mb-6">
+              <h2 class="text-2xl font-semibold text-gray-800">Create Post</h2>
+            </div>
+            {% if messages %}
+              <ul class="mb-4 text-sm">
+                {% for message in messages %}
+                  <li class="px-3 py-2 rounded {% if 'success' in message.tags %}bg-green-50 text-green-700{% else %}bg-red-50 text-red-700{% endif %}">{{ message }}</li>
+                {% endfor %}
+              </ul>
+            {% endif %}
+            <form action="" method="post" enctype="multipart/form-data" id="postForm">
+              {% csrf_token %}
+              <div class="flex items-start space-x-4">
+                <div class="w-14 h-14 rounded-full bg-green-100 text-primary flex items-center justify-center font-semibold text-xl overflow-hidden">
+                  {% if profile.avatar %}
+                    <img src="{{ profile.avatar.url }}" alt="Avatar" class="w-full h-full object-cover">
+                  {% else %}
+                    {{ profile.full_name|first|default:request.user.username|first }}
+                  {% endif %}
+                </div>
+                <div class="flex-1">
+                  <textarea name="content" rows="3" placeholder="Share your farming experiences..." class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"></textarea>
+                  <div class="mt-3 flex items-center justify-between">
+                    <label class="inline-flex items-center px-4 py-2 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100 transition">
+                      <i data-feather="image" class="w-5 h-5 mr-2 text-green-600"></i>
+                      <span>Add Photo</span>
+                      <input type="file" name="image" accept="image/*" class="hidden" id="postImage" />
+                    </label>
+                    <button type="submit" class="px-6 py-2 bg-gradient-to-r from-primary to-accent text-white rounded-lg hover:opacity-90 transition">
+                      Post
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </form>
+          </div>
+
+          <!-- Profile Information -->
+          <div class="bg-white rounded-xl shadow p-6">
+            <div class="flex items-center justify-between mb-6">
+              <h2 class="text-2xl font-semibold text-gray-800">Profile Information</h2>
+              <a href="/dashboard/#profile" class="flex items-center text-primary hover:underline">
+                <i data-feather="edit" class="mr-2"></i>
+                Edit
+              </a>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-6">
+              <div>
+                <h3 class="text-lg font-medium text-gray-700 mb-3">Account Details</h3>
+                <div class="space-y-2 text-gray-600">
+                  <p><span class="font-medium text-gray-800">Username:</span> {{ user_info.username }}</p>
+                  <p><span class="font-medium text-gray-800">Email:</span> {{ user_info.email|default:'—' }}</p>
+                  <p><span class="font-medium text-gray-800">Joined:</span> {{ user_info.date_joined|date:'M d, Y H:i' }}</p>
+                  <p><span class="font-medium text-gray-800">Last login:</span> {{ user_info.last_login|date:'M d, Y H:i'|default:'—' }}</p>
+                </div>
+              </div>
+
+              <div>
+                <h3 class="text-lg font-medium text-gray-700 mb-3">Farm Details</h3>
+                <div class="space-y-2 text-gray-600">
+                  <p><span class="font-medium text-gray-800">Name:</span> {{ profile.full_name }}</p>
+                  <p><span class="font-medium text-gray-800">Location:</span> {{ profile.get_state_display }}{% if profile.district_village %}, {{ profile.district_village }}{% endif %}</p>
+                  <p><span class="font-medium text-gray-800">Crops:</span> {{ profile.main_crops|default:'—' }}</p>
+                  <p><span class="font-medium text-gray-800">Farm size:</span> {{ profile.farm_size|default:'—' }}</p>
+                  {% if farming_types_list %}
+                  <p>
+                    <span class="font-medium text-gray-800">Farming types:</span>
+                    <span class="ml-1 space-x-1">
+                      {% for ft in farming_types_list %}
+                        <span class="inline-block bg-green-50 text-primary border border-green-100 px-2 py-0.5 rounded-full text-xs">{{ ft }}</span>
+                      {% endfor %}
+                    </span>
+                  </p>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- My Activity -->
+          <div class="bg-white rounded-xl shadow p-6">
+            <div class="flex items-center justify-between mb-6">
+              <h2 class="text-2xl font-semibold text-gray-800">My Activity</h2>
+            </div>
+
+            <div class="space-y-4">
+              {% for p in my_posts %}
+              <article class="bg-gray-50 rounded-xl p-6 hover:shadow-md transition">
+                <div class="flex items-start space-x-4">
+                  <div class="w-14 h-14 rounded-full bg-green-100 text-primary flex items-center justify-center font-semibold text-xl">
+                    {{ p.user.username|first|default:'U' }}
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <div class="flex items-start justify-between">
+                      <div>
+                        <h3 class="font-semibold text-gray-900">{{ p.user.username }}</h3>
+                        <p class="text-sm text-gray-500">{{ p.created_at|date:'M d, Y H:i' }}</p>
+                      </div>
+                      <button class="text-gray-400 hover:text-gray-600">
+                        <i data-feather="more-vertical"></i>
+                      </button>
+                    </div>
+                    {% if p.content %}
+                    <p class="text-gray-800 mt-3 whitespace-pre-line">{{ p.content }}</p>
+                    {% endif %}
+                    {% if p.image %}
+                    <div class="mt-4 border rounded-lg overflow-hidden">
+                      <img src="{{ p.image.url }}" alt="Post image" class="w-full">
+                    </div>
+                    {% endif %}
+                    <div class="flex items-center mt-4 space-x-6 text-gray-500">
+                      <div class="flex items-center">
+                        <i data-feather="thumbs-up" class="mr-2 w-4 h-4"></i>
+                        {{ p.like_count|default:0 }} Like{{ p.like_count|default:0|pluralize }}
+                      </div>
+                      <div class="flex items-center">
+                        <i data-feather="message-square" class="mr-2 w-4 h-4"></i>
+                        {{ p.comment_count|default:0 }} Comment{{ p.comment_count|default:0|pluralize }}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </article>
+              {% empty %}
+              <div class="bg-gray-50 rounded-xl p-8 text-center">
+                <i data-feather="frown" class="w-12 h-12 mx-auto text-gray-400 mb-4"></i>
+                <h3 class="text-lg font-medium text-gray-600">No activity yet</h3>
+                <p class="text-gray-500 mt-2">Start by creating your first post!</p>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+        </section>
+
+        <!-- Sidebar -->
+        <aside class="space-y-6">
+          <!-- Profile Completion -->
+          <div class="bg-white rounded-xl shadow p-6">
+            <h3 class="text-xl font-semibold text-gray-800 mb-4">Profile Completion</h3>
+            <div class="mb-3">
+              <div class="flex justify-between mb-1">
+                <span class="text-sm font-medium text-gray-700">75% Complete</span>
+              </div>
+              <div class="w-full bg-gray-200 rounded-full h-2.5">
+                <div class="bg-primary h-2.5 rounded-full" style="width: 75%"></div>
+              </div>
+            </div>
+            <ul class="space-y-3 text-sm text-gray-600">
+              <li class="flex items-start">
+                <i data-feather="{% if profile.full_name %}check-circle{% else %}circle{% endif %}" class="text-primary mr-2 mt-1 flex-shrink-0"></i>
+                <span>Add your full name</span>
+              </li>
+              <li class="flex items-start">
+                <i data-feather="{% if profile.get_state_display %}check-circle{% else %}circle{% endif %}" class="text-primary mr-2 mt-1 flex-shrink-0"></i>
+                <span>Set your location</span>
+              </li>
+              <li class="flex items-start">
+                <i data-feather="{% if profile.main_crops %}check-circle{% else %}circle{% endif %}" class="text-primary mr-2 mt-1 flex-shrink-0"></i>
+                <span>Add your main crops</span>
+              </li>
+              <li class="flex items-start">
+                <i data-feather="{% if profile.farm_size %}check-circle{% else %}circle{% endif %}" class="text-primary mr-2 mt-1 flex-shrink-0"></i>
+                <span>Enter farm size</span>
+              </li>
+            </ul>
+            <a href="/dashboard/#profile" class="mt-4 inline-flex items-center justify-center w-full px-4 py-2 bg-primary text-white rounded-lg hover:bg-opacity-90 transition">
+              <i data-feather="edit-2" class="mr-2"></i>
+              Complete Profile
+            </a>
+          </div>
+
+          <!-- Profile Photo -->
+          <div class="bg-white rounded-xl shadow p-6">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="text-xl font-semibold text-gray-800">Profile Photo</h3>
+              <form id="avatarForm" enctype="multipart/form-data" class="inline-flex items-center">
+                {% csrf_token %}
+                <input type="file" name="avatar" id="avatarInput" accept="image/*" class="hidden" />
+                <button class="text-primary hover:text-green-700" type="button" id="avatarBtn" title="Upload profile photo">
+                  <i data-feather="upload" class="w-5 h-5"></i>
+                </button>
+              </form>
+            </div>
+            <div class="h-48 bg-gray-100 rounded-lg flex items-center justify-center overflow-hidden">
+              {% if profile.avatar %}
+                <img src="{{ profile.avatar.url }}" alt="Profile photo" class="w-full h-full object-cover">
+              {% else %}
+                <div class="text-center p-4">
+                  <i data-feather="camera" class="w-10 h-10 mx-auto text-gray-400 mb-2"></i>
+                  <p class="text-sm text-gray-500">Upload your profile photo</p>
+                </div>
+              {% endif %}
+            </div>
+            <p class="text-xs text-gray-500 mt-2">JPG/PNG, up to ~5MB recommended.</p>
+          </div>
+
+          <!-- Quick Links -->
+          <div class="bg-white rounded-xl shadow p-6">
+            <h3 class="text-xl font-semibold text-gray-800 mb-4">Quick Links</h3>
+            <ul class="space-y-3">
+              <li>
+                <a href="/dashboard" class="flex items-center p-3 hover:bg-gray-50 rounded-lg transition">
+                  <span class="w-8 h-8 rounded-full bg-green-100 text-primary flex items-center justify-center mr-3">
+                    <i data-feather="home" class="w-4 h-4"></i>
+                  </span>
+                  <span class="font-medium">Dashboard</span>
+                </a>
+              </li>
+              <li>
+                <a href="/forum" class="flex items-center p-3 hover:bg-gray-50 rounded-lg transition">
+                  <span class="w-8 h-8 rounded-full bg-green-100 text-primary flex items-center justify-center mr-3">
+                    <i data-feather="message-square" class="w-4 h-4"></i>
+                  </span>
+                  <span class="font-medium">Community Forum</span>
+                </a>
+              </li>
+              <li>
+                <a href="/chatbot" class="flex items-center p-3 hover:bg-gray-50 rounded-lg transition">
+                  <span class="w-8 h-8 rounded-full bg-green-100 text-primary flex items-center justify-center mr-3">
+                    <i data-feather="zap" class="w-4 h-4"></i>
+                  </span>
+                  <span class="font-medium">AI Assistant</span>
+                </a>
+              </li>
+              <li>
+                <a href="/resources" class="flex items-center p-3 hover:bg-gray-50 rounded-lg transition">
+                  <span class="w-8 h-8 rounded-full bg-green-100 text-primary flex items-center justify-center mr-3">
+                    <i data-feather="book" class="w-4 h-4"></i>
+                  </span>
+                  <span class="font-medium">Resources</span>
+                </a>
+              </li>
+            </ul>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    // Replace feather icons if the base doesn't already handle it
+    if (window.feather && typeof window.feather.replace === 'function') {
+      window.feather.replace();
+    }
+    // Post form handling (prevent empty posts)
+    const postForm = document.getElementById('postForm');
+    const postImage = document.getElementById('postImage');
+    if (postForm) {
+      postForm.addEventListener('submit', function(e) {
+        const textarea = this.querySelector('textarea');
+        if (textarea.value.trim() === '' && postImage && postImage.files.length === 0) {
+          e.preventDefault();
+          alert('Please enter some text or select an image to post.');
+        }
+      });
+    }
+
+    // Avatar upload handling via API
+    function getCookie(name) {
+      let cookieValue = null;
+      if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+          const cookie = cookies[i].trim();
+          if (cookie.substring(0, name.length + 1) === (name + '=')) {
+            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+            break;
+          }
+        }
+      }
+      return cookieValue;
+    }
+    const csrftoken = getCookie('csrftoken');
+
+    const avatarBtn = document.getElementById('avatarBtn');
+    const avatarInput = document.getElementById('avatarInput');
+    const avatarForm = document.getElementById('avatarForm');
+    avatarBtn?.addEventListener('click', () => avatarInput?.click());
+    avatarInput?.addEventListener('change', async () => {
+      if (!avatarInput.files || avatarInput.files.length === 0) return;
+      const formData = new FormData();
+      formData.append('avatar', avatarInput.files[0]);
+      try {
+        const res = await fetch('{% url "api_profile_update" %}', {
+          method: 'POST',
+          headers: { 'X-CSRFToken': csrftoken },
+          body: formData
+        });
+        const data = await res.json();
+        if (data.ok) {
+          // Refresh to show new avatar in all places
+          window.location.reload();
+        } else {
+          alert(data.error || 'Failed to upload profile photo');
+        }
+      } catch (e) {
+        console.error(e);
+        alert('Failed to upload profile photo');
+      } finally {
+        avatarInput.value = '';
+      }
+    });
+  </script>
+{% endblock %}

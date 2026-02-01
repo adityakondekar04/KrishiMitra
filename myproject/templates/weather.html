@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Weather Updates • Krishi Mitra</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+  <script src="https://unpkg.com/feather-icons"></script>
+  <script src="components/navbar.js"></script>
+  <script src="components/footer.js"></script>
+  <style>
+    .weather-card { transition: all 0.3s ease; }
+    .weather-card:hover { transform: translateY(-4px); box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1); }
+    .high-rain { background: rgba(59,130,246,0.1); border-color: rgba(59,130,246,0.3); }
+  </style>
+  <script>
+    tailwind && (tailwind.config = {
+    theme: { extend: { fontFamily: { poppins: ['Poppins','sans-serif'] }, colors: { primary:'#16A34A', accent:'#15803D' } } }
+    });
+  </script>
+</head>
+<body class="font-poppins">
+  <!-- App Navbar (same as other pages) -->
+  <nav class="bg-white shadow-md sticky top-0 z-50">
+    <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+    <a href="{% url 'home' %}" class="flex items-center space-x-2">
+      <i data-feather="sun" class="text-primary"></i>
+      <span class="text-xl font-bold text-primary">Krishi <span>Mitra</span></span>
+    </a>
+    <div class="hidden md:flex space-x-6">
+      <a href="{% url 'dashboard' %}" class="text-gray-700 hover:text-primary transition flex items-center"><i data-feather="grid" class="w-4 h-4 mr-1"></i>Dashboard</a>
+      <a href="{% url 'forum' %}" class="text-gray-700 hover:text-primary transition flex items-center"><i data-feather="message-square" class="w-4 h-4 mr-1"></i>Forum</a>
+      <a href="{% url 'chatbot' %}" class="text-gray-700 hover:text-primary transition flex items-center"><i data-feather="cpu" class="w-4 h-4 mr-1"></i>Chatbot</a>
+      <a href="{% url 'weather_updates' %}" class="text-gray-700 hover:text-primary transition flex items-center"><i data-feather="cloud" class="w-4 h-4 mr-1"></i>Weather</a>
+      <a href="{% url 'learning' %}" class="text-gray-700 hover:text-primary transition flex items-center"><i data-feather="book-open" class="w-4 h-4 mr-1"></i>Learning</a>
+      <a href="{% url 'schemes' %}" class="text-gray-700 hover:text-primary transition flex items-center"><i data-feather="award" class="w-4 h-4 mr-1"></i>Schemes</a>
+      <a href="{% url 'profile_page' %}" class="text-gray-700 hover:text-primary transition flex items-center"><i data-feather="user" class="w-4 h-4 mr-1"></i>Profile</a>
+      <a href="{% url 'settings_page' %}" class="text-gray-700 hover:text-primary transition flex items-center"><i data-feather="settings" class="w-4 h-4 mr-1"></i>Settings</a>
+    </div>
+    <div class="hidden md:block">
+      {% if request.user.is_authenticated %}
+      <a href="{% url 'logout' %}" class="text-primary hover:text-accent inline-flex items-center"><i data-feather="log-out" class="w-4 h-4 mr-1"></i>Logout</a>
+      {% else %}
+      <a href="{% url 'login' %}" class="text-primary hover:text-accent inline-flex items-center"><i data-feather="log-in" class="w-4 h-4 mr-1"></i>Login</a>
+      {% endif %}
+    </div>
+    <button class="md:hidden focus:outline-none" id="mobile-menu-button"><i data-feather="menu"></i></button>
+    </div>
+  <div class="md:hidden hidden bg-white py-2 px-4 shadow-lg" id="mobile-menu">
+  <a href="{% url 'dashboard' %}" class="block py-2 text-gray-700 hover:text-primary flex items-center"><i data-feather="grid" class="w-4 h-4 mr-2"></i>Dashboard</a>
+  <a href="{% url 'forum' %}" class="block py-2 text-gray-700 hover:text-primary flex items-center"><i data-feather="message-square" class="w-4 h-4 mr-2"></i>Forum</a>
+  <a href="{% url 'chatbot' %}" class="block py-2 text-gray-700 hover:text-primary flex items-center"><i data-feather="cpu" class="w-4 h-4 mr-2"></i>Chatbot</a>
+  <a href="{% url 'weather_updates' %}" class="block py-2 text-gray-700 hover:text-primary flex items-center"><i data-feather="cloud" class="w-4 h-4 mr-2"></i>Weather</a>
+  <a href="{% url 'learning' %}" class="block py-2 text-gray-700 hover:text-primary flex items-center"><i data-feather="book-open" class="w-4 h-4 mr-2"></i>Learning</a>
+  <a href="{% url 'schemes' %}" class="block py-2 text-gray-700 hover:text-primary flex items-center"><i data-feather="award" class="w-4 h-4 mr-2"></i>Schemes</a>
+  <a href="{% url 'profile_page' %}" class="block py-2 text-gray-700 hover:text-primary flex items-center"><i data-feather="user" class="w-4 h-4 mr-2"></i>Profile</a>
+  <a href="{% url 'settings_page' %}" class="block py-2 text-gray-700 hover:text-primary flex items-center"><i data-feather="settings" class="w-4 h-4 mr-2"></i>Settings</a>
+    {% if request.user.is_authenticated %}
+      <a href="{% url 'logout' %}" class="block py-2 text-gray-700 hover:text-primary flex items-center"><i data-feather="log-out" class="w-4 h-4 mr-2"></i>Logout</a>
+    {% else %}
+      <a href="{% url 'login' %}" class="block py-2 text-gray-700 hover:text-primary flex items-center"><i data-feather="log-in" class="w-4 h-4 mr-2"></i>Login</a>
+    {% endif %}
+    </div>
+  </nav>
+    
+  <main class="container mx-auto px-4 py-16">
+    <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+      <!-- Hero Section -->
+      <div class="relative bg-cover bg-center h-64" style="background-image: url('https://www.shutterstock.com/image-photo/weather-forecast-presentation-report-background-260nw-1439568695.jpg')">
+        <div class="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center">
+          <h1 class="text-4xl md:text-5xl font-bold text-white text-center">Weather Updates</h1>
+        </div>
+      </div>
+            
+      <div class="grid md:grid-cols-4 gap-8 p-6">
+        <!-- Main Content -->
+        <section class="md:col-span-3 space-y-6">
+          <!-- Search Form -->
+          <div class="bg-white rounded-xl shadow p-6">
+            <form class="flex flex-wrap items-center gap-4 mb-2" method="get">
+              <div class="relative flex-1 min-w-[220px]">
+                <input name="q" value="{{ q }}" placeholder="Enter city or village (e.g., Pune)" 
+                  class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" />
+                <button class="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-primary" type="submit">
+                  <i data-feather="search" class="w-5 h-5"></i>
+                </button>
+              </div>
+              <button type="submit" class="px-6 py-3 bg-gradient-to-r from-primary to-accent text-white rounded-lg hover:opacity-90">
+                Search
+              </button>
+              <button id="useLoc" type="button" class="px-4 py-3 bg-white border rounded-lg hover:bg-gray-50 flex items-center">
+                <i data-feather="navigation" class="w-5 h-5 mr-2"></i>
+                <span>Use my location</span>
+              </button>
+            </form>
+
+            {% if error %}
+            <div class="mt-4 p-4 bg-red-50 border border-red-200 text-red-700 rounded-lg">{{ error }}</div>
+            {% endif %}
+          </div>
+
+          {% if result %}
+          <!-- Rain Prediction -->
+          <div class="bg-white rounded-xl shadow p-6">
+            <div class="flex items-center mb-4">
+              <i data-feather="cloud-rain" class="w-6 h-6 text-blue-500 mr-2"></i>
+              <h2 class="text-xl font-semibold text-gray-800">Rain Prediction</h2>
+            </div>
+                        
+            <div class="grid md:grid-cols-2 gap-6">
+              <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <h3 class="text-lg font-medium text-blue-800 mb-2">Today</h3>
+                <div class="flex items-center">
+                  <div class="text-3xl font-bold text-blue-700 mr-3">
+                    {{ result.rain.today_prob }}%
+                  </div>
+                  <div class="text-sm text-blue-700">
+                    Chance of rain today
+                  </div>
+                </div>
+              </div>
+                            
+              <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <h3 class="text-lg font-medium text-blue-800 mb-2">Next Expected Rain</h3>
+                {% if result.rain.next_rain %}
+                <div class="space-y-1 text-sm text-blue-700">
+                  <div><span class="font-medium">Date:</span> {{ result.rain.next_rain.date }}</div>
+                  <div><span class="font-medium">Chance:</span> {{ result.rain.next_rain.prob }}%</div>
+                  <div><span class="font-medium">Amount:</span> {{ result.rain.next_rain.precip }} mm</div>
+                </div>
+                {% else %}
+                <div class="text-sm text-blue-700">No significant rain expected in next 7 days</div>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+
+          <!-- Current Conditions -->
+          <div class="bg-white rounded-xl shadow p-6">
+            <div class="flex items-center justify-between mb-4">
+              <div class="flex items-center">
+                <i data-feather="sun" class="w-6 h-6 text-yellow-500 mr-2"></i>
+                <h2 class="text-xl font-semibold text-gray-800">Current Conditions</h2>
+              </div>
+              {% if result.place %}
+              <div class="text-sm text-gray-600">
+                {{ result.place.name }}, {{ result.place.admin1 }}
+              </div>
+              {% endif %}
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-6">
+              <div class="flex items-center justify-center">
+                <div class="text-5xl font-bold text-gray-800 mr-4">
+                  {{ result.current.temp }}°C
+                </div>
+                <div class="text-sm text-gray-600">
+                  <div>Feels like {{ result.current.feels_like }}°C</div>
+                  <div class="mt-1">{{ result.current.condition }}</div>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-2 gap-4 text-sm text-gray-700">
+                <div class="flex items-center">
+                  <i data-feather="droplet" class="w-4 h-4 text-blue-500 mr-2"></i>
+                  <span>Humidity: {{ result.current.humidity }}%</span>
+                </div>
+                <div class="flex items-center">
+                  <i data-feather="wind" class="w-4 h-4 text-blue-500 mr-2"></i>
+                  <span>Wind: {{ result.current.wind_speed }} km/h</span>
+                </div>
+                <div class="flex items-center">
+                  <i data-feather="compass" class="w-4 h-4 text-blue-500 mr-2"></i>
+                  <span>Direction: {{ result.current.wind_dir }}°</span>
+                </div>
+                <div class="flex items-center">
+                  <i data-feather="cloud-rain" class="w-4 h-4 text-blue-500 mr-2"></i>
+                  <span>Precip: {{ result.current.precip|default:'0' }} mm</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 7-Day Forecast -->
+          <div class="bg-white rounded-xl shadow p-6">
+            <div class="flex items-center mb-4">
+              <i data-feather="calendar" class="w-6 h-6 text-primary mr-2"></i>
+              <h2 class="text-xl font-semibold text-gray-800">7-Day Forecast</h2>
+            </div>
+
+            <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {% for d in result.daily %}
+              <div class="weather-card border rounded-lg p-4 {% if d.prob and d.prob|floatformat:0 >= 50 %}high-rain{% endif %}">
+                <div class="text-sm font-medium text-gray-700">{{ d.date }}</div>
+                <div class="flex items-center mt-2">
+                  <div class="text-3xl font-bold text-gray-800 mr-3">
+                    {{ d.t_max }}°C
+                  </div>
+                  <div class="text-sm text-gray-600">
+                    <div>Min: {{ d.t_min }}°C</div>
+                    <div class="mt-1">Precip: {{ d.precip|default:'0' }} mm</div>
+                  </div>
+                </div>
+                <div class="mt-2 text-sm text-gray-600">
+                  <div class="flex justify-between">
+                    <span>Rain chance:</span>
+                    <span class="font-medium {% if d.prob and d.prob|floatformat:0 >= 50 %}text-blue-600{% endif %}">
+                      {{ d.prob|default:'—' }}%
+                    </span>
+                  </div>
+                  {% if d.precip_hours is not None %}
+                  <div class="flex justify-between mt-1">
+                    <span>Rain hours:</span>
+                    <span class="font-medium">{{ d.precip_hours }}h</span>
+                  </div>
+                  {% endif %}
+                </div>
+                <div class="mt-2 text-xs text-gray-500">
+                  <div class="flex justify-between">
+                    <span>Sunrise:</span>
+                    <span>{{ d.sunrise|time:'H:i' }}</span>
+                  </div>
+                  <div class="flex justify-between mt-1">
+                    <span>Sunset:</span>
+                    <span>{{ d.sunset|time:'H:i' }}</span>
+                  </div>
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+          {% else %}
+          <div class="bg-white rounded-xl shadow p-8 text-center">
+            <i data-feather="cloud" class="w-12 h-12 mx-auto text-gray-400 mb-4"></i>
+            <h3 class="text-lg font-medium text-gray-600">No weather data yet</h3>
+            <p class="text-gray-500 mt-2">Search a location or use your current location to see weather updates</p>
+          </div>
+          {% endif %}
+        </section>
+
+        <!-- Sidebar -->
+        <aside class="space-y-6">
+          <!-- Weather Tips -->
+          <div class="bg-white rounded-xl shadow p-6">
+            <h3 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+              <i data-feather="alert-circle" class="w-5 h-5 mr-2 text-primary"></i>
+              Weather Tips
+            </h3>
+            <ul class="space-y-3 text-sm text-gray-600">
+              <li class="flex items-start">
+                <i data-feather="check-circle" class="text-primary mr-2 mt-1 flex-shrink-0"></i>
+                <span>Check forecast before planning field work</span>
+              </li>
+              <li class="flex items-start">
+                <i data-feather="check-circle" class="text-primary mr-2 mt-1 flex-shrink-0"></i>
+                <span>Avoid pesticide application before rain</span>
+              </li>
+              <li class="flex items-start">
+                <i data-feather="check-circle" class="text-primary mr-2 mt-1 flex-shrink-0"></i>
+                <span>Harvest crops before heavy rain forecast</span>
+              </li>
+              <li class="flex items-start">
+                <i data-feather="check-circle" class="text-primary mr-2 mt-1 flex-shrink-0"></i>
+                <span>Irrigate less when rain is expected</span>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Recommended Actions -->
+          <div class="bg-white rounded-xl shadow p-6">
+            <h3 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+              <i data-feather="zap" class="w-5 h-5 mr-2 text-primary"></i>
+              Recommended Actions
+            </h3>
+            <ul class="space-y-3">
+              <li>
+                <a href="#" class="flex items-center p-3 hover:bg-gray-50 rounded-lg transition">
+                  <span class="w-8 h-8 rounded-full bg-green-100 text-primary flex items-center justify-center mr-3">
+                    <i data-feather="droplet" class="w-4 h-4"></i>
+                  </span>
+                  <span class="font-medium text-sm">Irrigation Schedule</span>
+                </a>
+              </li>
+              <li>
+                <a href="#" class="flex items-center p-3 hover:bg-gray-50 rounded-lg transition">
+                  <span class="w-8 h-8 rounded-full bg-green-100 text-primary flex items-center justify-center mr-3">
+                    <i data-feather="shield" class="w-4 h-4"></i>
+                  </span>
+                  <span class="font-medium text-sm">Pest Control Guide</span>
+                </a>
+              </li>
+              <li>
+                <a href="#" class="flex items-center p-3 hover:bg-gray-50 rounded-lg transition">
+                  <span class="w-8 h-8 rounded-full bg-green-100 text-primary flex items-center justify-center mr-3">
+                    <i data-feather="calendar" class="w-4 h-4"></i>
+                  </span>
+                  <span class="font-medium text-sm">Crop Calendar</span>
+                </a>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Important Links -->
+          <div class="bg-white rounded-xl shadow p-6">
+            <h3 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+              <i data-feather="link" class="w-5 h-5 mr-2 text-primary"></i>
+              Important Links
+            </h3>
+            <ul class="space-y-3">
+              <li>
+                <a href="#" class="flex items-center p-3 hover:bg-gray-50 rounded-lg transition">
+                  <span class="w-8 h-8 rounded-full bg-green-100 text-primary flex items-center justify-center mr-3">
+                    <i data-feather="cloud" class="w-4 h-4"></i>
+                  </span>
+                  <span class="font-medium text-sm">IMD Weather Forecast</span>
+                </a>
+              </li>
+              <li>
+                <a href="#" class="flex items-center p-3 hover:bg-gray-50 rounded-lg transition">
+                  <span class="w-8 h-8 rounded-full bg-green-100 text-primary flex items-center justify-center mr-3">
+                    <i data-feather="alert-triangle" class="w-4 h-4"></i>
+                  </span>
+                  <span class="font-medium text-sm">Weather Alerts</span>
+                </a>
+              </li>
+              <li>
+                <a href="#" class="flex items-center p-3 hover:bg-gray-50 rounded-lg transition">
+                  <span class="w-8 h-8 rounded-full bg-green-100 text-primary flex items-center justify-center mr-3">
+                    <i data-feather="map" class="w-4 h-4"></i>
+                  </span>
+                  <span class="font-medium text-sm">Satellite Imagery</span>
+                </a>
+              </li>
+            </ul>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </main>
+
+  <custom-footer></custom-footer>
+
+  <script src="script.js"></script>
+  <script>
+    feather.replace();
+
+    // Mobile menu toggle
+    const mobileMenuButton = document.getElementById('mobile-menu-button');
+    const mobileMenu = document.getElementById('mobile-menu');
+    mobileMenuButton?.addEventListener('click', () => mobileMenu.classList.toggle('hidden'));
+
+    // Location detection
+    const btn = document.getElementById('useLoc');
+    if (btn) {
+      btn.addEventListener('click', () => {
+        if (!navigator.geolocation) {
+          alert('Geolocation is not supported by your browser.');
+          return;
+        }
+        btn.disabled = true;
+        btn.innerHTML = '<i data-feather="loader" class="w-5 h-5 mr-2 animate-spin"></i>Locating...';
+        feather.replace();
+                
+        navigator.geolocation.getCurrentPosition(
+          pos => {
+            const { latitude, longitude } = pos.coords;
+            const url = new URL(window.location.href);
+            url.searchParams.set('lat', latitude);
+            url.searchParams.set('lon', longitude);
+            url.searchParams.delete('q');
+            window.location.href = url.toString();
+          },
+          err => {
+            alert('Unable to retrieve your location.');
+            btn.disabled = false;
+            btn.innerHTML = '<i data-feather="navigation" class="w-5 h-5 mr-2"></i>Use my location';
+            feather.replace();
+          },
+          { enableHighAccuracy: true, timeout: 10000 }
+        );
+      });
+    }
+
+    // Weather card hover effects (visual only)
+    document.querySelectorAll('.weather-card').forEach(card => {
+      card.addEventListener('mouseenter', function() {
+        this.style.transform = 'translateY(-4px)';
+        this.style.boxShadow = '0 10px 25px -5px rgba(0, 0, 0, 0.1)';
+      });
+      card.addEventListener('mouseleave', function() {
+        this.style.transform = '';
+        this.style.boxShadow = '';
+      });
+    });
+  </script>
+</body>
+</html>

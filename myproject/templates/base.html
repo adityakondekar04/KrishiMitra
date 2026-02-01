@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>{% block title %}Krishi Mitra{% endblock %}</title>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+	<script src="https://cdn.tailwindcss.com"></script>
+	<script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+	<script src="https://unpkg.com/feather-icons"></script>
+	<script>
+		tailwind.config = {
+			theme: {
+				extend: {
+					fontFamily: { poppins: ['Poppins', 'sans-serif'] },
+					colors: { primary: '#16A34A', secondary: '#FACC15', accent: '#15803D' }
+				}
+			}
+		}
+	</script>
+	<style>
+		body { opacity: 0; transition: opacity 250ms ease; }
+		body.page-loaded { opacity: 1; }
+	</style>
+	{% block extra_head %}{% endblock %}
+</head>
+<body class="font-poppins bg-gray-50 min-h-screen flex flex-col">
+	<!-- Site Navbar (Home-style) -->
+	<nav class="bg-white shadow-md sticky top-0 z-50">
+		<div class="container mx-auto px-4 py-3 flex justify-between items-center">
+			<a href="{% url 'home' %}" class="flex items-center space-x-2">
+				<i data-feather="sun" class="text-primary"></i>
+				<span class="text-xl font-bold text-primary">Krishi <span>Mitra</span></span>
+			</a>
+			<div class="hidden md:flex space-x-6">
+				<a href="{% url 'dashboard' %}" class="text-gray-700 hover:text-primary transition flex items-center"><i data-feather="grid" class="w-4 h-4 mr-1"></i>Dashboard</a>
+				<a href="{% url 'forum' %}" class="text-gray-700 hover:text-primary transition flex items-center"><i data-feather="message-square" class="w-4 h-4 mr-1"></i>Forum</a>
+				<a href="{% url 'chatbot' %}" class="text-gray-700 hover:text-primary transition flex items-center"><i data-feather="cpu" class="w-4 h-4 mr-1"></i>Chatbot</a>
+				<a href="{% url 'weather_updates' %}" class="text-gray-700 hover:text-primary transition flex items-center"><i data-feather="cloud" class="w-4 h-4 mr-1"></i>Weather</a>
+				<a href="{% url 'learning' %}" class="text-gray-700 hover:text-primary transition flex items-center"><i data-feather="book-open" class="w-4 h-4 mr-1"></i>Learning</a>
+				<a href="{% url 'schemes' %}" class="text-gray-700 hover:text-primary transition flex items-center"><i data-feather="award" class="w-4 h-4 mr-1"></i>Schemes</a>
+				<a href="{% url 'profile_page' %}" class="text-gray-700 hover:text-primary transition flex items-center"><i data-feather="user" class="w-4 h-4 mr-1"></i>Profile</a>
+				<a href="{% url 'settings_page' %}" class="text-gray-700 hover:text-primary transition flex items-center"><i data-feather="settings" class="w-4 h-4 mr-1"></i>Settings</a>
+			</div>
+			<div class="hidden md:block">
+				{% if request.user.is_authenticated %}
+					<a href="{% url 'logout' %}" class="text-primary hover:text-accent flex items-center"><i data-feather="log-out" class="w-4 h-4 mr-1"></i>Logout</a>
+				{% else %}
+					<a href="{% url 'login' %}" class="bg-gradient-to-r from-primary to-accent text-white px-4 py-2 rounded-full hover:shadow-lg transition inline-block">Join Now</a>
+				{% endif %}
+			</div>
+			<button class="md:hidden focus:outline-none" id="mobile-menu-button">
+				<i data-feather="menu"></i>
+			</button>
+		</div>
+		<!-- Mobile Menu -->
+		<div class="md:hidden hidden bg-white py-2 px-4 shadow-lg" id="mobile-menu">
+			<a href="{% url 'dashboard' %}" class="block py-2 text-gray-700 hover:text-primary flex items-center"><i data-feather="grid" class="w-4 h-4 mr-2"></i>Dashboard</a>
+			<a href="{% url 'forum' %}" class="block py-2 text-gray-700 hover:text-primary flex items-center"><i data-feather="message-square" class="w-4 h-4 mr-2"></i>Forum</a>
+			<a href="{% url 'chatbot' %}" class="block py-2 text-gray-700 hover:text-primary flex items-center"><i data-feather="cpu" class="w-4 h-4 mr-2"></i>Chatbot</a>
+			<a href="{% url 'weather_updates' %}" class="block py-2 text-gray-700 hover:text-primary flex items-center"><i data-feather="cloud" class="w-4 h-4 mr-2"></i>Weather</a>
+			<a href="{% url 'learning' %}" class="block py-2 text-gray-700 hover:text-primary flex items-center"><i data-feather="book-open" class="w-4 h-4 mr-2"></i>Learning</a>
+			<a href="{% url 'schemes' %}" class="block py-2 text-gray-700 hover:text-primary flex items-center"><i data-feather="award" class="w-4 h-4 mr-2"></i>Schemes</a>
+			<a href="{% url 'profile_page' %}" class="block py-2 text-gray-700 hover:text-primary flex items-center"><i data-feather="user" class="w-4 h-4 mr-2"></i>Profile</a>
+			<a href="{% url 'settings_page' %}" class="block py-2 text-gray-700 hover:text-primary flex items-center"><i data-feather="settings" class="w-4 h-4 mr-2"></i>Settings</a>
+			{% if request.user.is_authenticated %}
+				<a href="{% url 'logout' %}" class="block py-2 text-gray-700 hover:text-primary flex items-center"><i data-feather="log-out" class="w-4 h-4 mr-2"></i>Logout</a>
+			{% else %}
+				<a href="{% url 'login' %}" class="block py-2 bg-gradient-to-r from-primary to-accent text-white px-4 rounded-full text-center">Join Now</a>
+			{% endif %}
+		</div>
+	</nav>
+
+	<!-- Page Content -->
+	<main class="flex-1">
+		{% block content %}{% endblock %}
+	</main>
+
+	<!-- Footer (Home-style) -->
+	<footer id="contact" class="bg-gray-900 text-white py-12 mt-12">
+		<div class="container mx-auto px-4">
+			<div class="grid md:grid-cols-4 gap-8">
+				<div class="md:col-span-2">
+					<div class="flex items-center space-x-2 mb-4">
+						<i data-feather="sun" class="text-primary"></i>
+						<span class="text-xl font-bold">Krishi <span>Mitra</span></span>
+					</div>
+					<p class="text-gray-400 mb-4">Your Digital Farming Companion helping farmers grow smarter through technology and community.</p>
+					<div class="flex space-x-4">
+						<a href="#" class="text-gray-400 hover:text-white transition"><i data-feather="facebook"></i></a>
+						<a href="#" class="text-gray-400 hover:text-white transition"><i data-feather="twitter"></i></a>
+						<a href="#" class="text-gray-400 hover:text-white transition"><i data-feather="youtube"></i></a>
+						<a href="#" class="text-gray-400 hover:text-white transition"><i data-feather="instagram"></i></a>
+					</div>
+				</div>
+				<div>
+					<h3 class="text-lg font-semibold mb-4">Quick Links</h3>
+					<ul class="space-y-2">
+						<li><a href="{% url 'home' %}" class="text-gray-400 hover:text-white transition">Home</a></li>
+						<li><a href="{% url 'forum' %}" class="text-gray-400 hover:text-white transition">Forum</a></li>
+						<li><a href="{% url 'weather_updates' %}" class="text-gray-400 hover:text-white transition">Weather</a></li>
+						<li><a href="{% url 'learning' %}" class="text-gray-400 hover:text-white transition">Learning</a></li>
+						<li><a href="{% url 'schemes' %}" class="text-gray-400 hover:text-white transition">Schemes</a></li>
+					</ul>
+				</div>
+				<div>
+					<h3 class="text-lg font-semibold mb-4">Contact Us</h3>
+					<ul class="space-y-2">
+						<li class="flex items-center text-gray-400"><i data-feather="mail" class="mr-2 w-4 h-4"></i> help@krishimitra.com</li>
+						<li class="flex items-center text-gray-400"><i data-feather="phone" class="mr-2 w-4 h-4"></i> +91 9970832199</li>
+						<li class="flex items-center text-gray-400"><i data-feather="map-pin" class="mr-2 w-4 h-4"></i> Maharashtra, India</li>
+					</ul>
+				</div>
+			</div>
+			<div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
+				<p>© 2025 Krishi Mitra. All rights reserved.</p>
+			</div>
+		</div>
+	</footer>
+
+	<script>
+		// Page fade-in
+		window.addEventListener('load', () => {
+			document.body.classList.add('page-loaded');
+			if (window.feather) { feather.replace(); }
+		});
+		// Mobile menu toggle
+		const mobileMenuButton = document.getElementById('mobile-menu-button');
+		const mobileMenu = document.getElementById('mobile-menu');
+		mobileMenuButton?.addEventListener('click', () => mobileMenu.classList.toggle('hidden'));
+	</script>
+	{% block extra_scripts %}{% endblock %}
+</body>
+</html>

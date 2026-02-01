@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Learning Hub • Krishi Mitra</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <script src="https://unpkg.com/feather-icons"></script>
+    <script src="components/navbar.js"></script>
+    <script src="components/footer.js"></script>
+    <style>
+        .resource-card {
+            transition: all 0.3s ease;
+        }
+        .resource-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+        .category-btn {
+            transition: all 0.2s ease;
+        }
+        .category-btn:hover {
+            background: #f3f4f6;
+            transform: translateY(-1px);
+        }
+        .category-btn.active {
+            background: linear-gradient(to right, #16a34a, #22c55e);
+            color: white;
+        }
+    </style>
+    <script>
+      tailwind && (tailwind.config = {
+        theme: { extend: { fontFamily: { poppins: ['Poppins','sans-serif'] }, colors: { primary:'#16A34A', accent:'#15803D' } } }
+      });
+    </script>
+    <style> body{font-family:'Poppins',sans-serif} </style>
+</head>
+<body class="font-poppins">
+    <!-- App Navbar (same as other pages) -->
+    <nav class="bg-white shadow-md sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <a href="{% url 'home' %}" class="flex items-center space-x-2">
+                <i data-feather="sun" class="text-primary"></i>
+                <span class="text-xl font-bold text-primary">Krishi <span>Mitra</span></span>
+            </a>
+            <div class="hidden md:flex space-x-6">
+                <a href="{% url 'dashboard' %}" class="text-gray-700 hover:text-primary transition flex items-center"><i data-feather="grid" class="w-4 h-4 mr-1"></i>Dashboard</a>
+                <a href="{% url 'forum' %}" class="text-gray-700 hover:text-primary transition flex items-center"><i data-feather="message-square" class="w-4 h-4 mr-1"></i>Forum</a>
+                <a href="{% url 'chatbot' %}" class="text-gray-700 hover:text-primary transition flex items-center"><i data-feather="cpu" class="w-4 h-4 mr-1"></i>Chatbot</a>
+                <a href="{% url 'weather_updates' %}" class="text-gray-700 hover:text-primary transition flex items-center"><i data-feather="cloud" class="w-4 h-4 mr-1"></i>Weather</a>
+                <a href="{% url 'learning' %}" class="text-gray-700 hover:text-primary transition flex items-center"><i data-feather="book-open" class="w-4 h-4 mr-1"></i>Learning</a>
+                <a href="{% url 'schemes' %}" class="text-gray-700 hover:text-primary transition flex items-center"><i data-feather="award" class="w-4 h-4 mr-1"></i>Schemes</a>
+                <a href="{% url 'profile_page' %}" class="text-gray-700 hover:text-primary transition flex items-center"><i data-feather="user" class="w-4 h-4 mr-1"></i>Profile</a>
+                <a href="{% url 'settings_page' %}" class="text-gray-700 hover:text-primary transition flex items-center"><i data-feather="settings" class="w-4 h-4 mr-1"></i>Settings</a>
+            </div>
+            <div class="hidden md:block">
+                {% if request.user.is_authenticated %}
+                    <a href="{% url 'logout' %}" class="text-primary hover:text-accent">Logout</a>
+                {% else %}
+                    <a href="{% url 'login' %}" class="bg-gradient-to-r from-primary to-accent text-white px-4 py-2 rounded-full hover:shadow-lg transition inline-block">Join Now</a>
+                {% endif %}
+            </div>
+            <button class="md:hidden focus:outline-none" id="mobile-menu-button">
+                <i data-feather="menu"></i>
+            </button>
+        </div>
+        <!-- Mobile Menu -->
+        <div class="md:hidden hidden bg-white py-2 px-4 shadow-lg" id="mobile-menu">
+            <a href="{% url 'dashboard' %}" class="block py-2 text-gray-700 hover:text-primary flex items-center"><i data-feather="grid" class="w-4 h-4 mr-2"></i>Dashboard</a>
+            <a href="{% url 'forum' %}" class="block py-2 text-gray-700 hover:text-primary flex items-center"><i data-feather="message-square" class="w-4 h-4 mr-2"></i>Forum</a>
+            <a href="{% url 'chatbot' %}" class="block py-2 text-gray-700 hover:text-primary flex items-center"><i data-feather="cpu" class="w-4 h-4 mr-2"></i>Chatbot</a>
+            <a href="{% url 'weather_updates' %}" class="block py-2 text-gray-700 hover:text-primary flex items-center"><i data-feather="cloud" class="w-4 h-4 mr-2"></i>Weather</a>
+            <a href="{% url 'learning' %}" class="block py-2 text-gray-700 hover:text-primary flex items-center"><i data-feather="book-open" class="w-4 h-4 mr-2"></i>Learning</a>
+            <a href="{% url 'schemes' %}" class="block py-2 text-gray-700 hover:text-primary flex items-center"><i data-feather="award" class="w-4 h-4 mr-2"></i>Schemes</a>
+            <a href="{% url 'profile_page' %}" class="block py-2 text-gray-700 hover:text-primary flex items-center"><i data-feather="user" class="w-4 h-4 mr-2"></i>Profile</a>
+            <a href="{% url 'settings_page' %}" class="block py-2 text-gray-700 hover:text-primary flex items-center"><i data-feather="settings" class="w-4 h-4 mr-2"></i>Settings</a>
+            {% if request.user.is_authenticated %}
+                <a href="{% url 'logout' %}" class="block py-2 text-gray-700 hover:text-primary">Logout</a>
+            {% else %}
+                <a href="{% url 'login' %}" class="block py-2 bg-gradient-to-r from-primary to-accent text-white px-4 rounded-full text-center">Join Now</a>
+            {% endif %}
+        </div>
+    </nav>
+    
+    <main class="container mx-auto px-4 py-8">
+        <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+            <!-- Hero Section -->
+            <div class="relative bg-cover bg-center h-64" style="background-image: url('https://www.protectourlivelihood.in/wp-content/uploads/2018/09/banner-images_0000_Education-Awareness-1.jpg')">
+                <div class="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center">
+                    <div class="text-center px-4">
+                        <h1 class="text-3xl md:text-4xl font-bold text-white mb-4">Learning Hub</h1>
+                        <p class="text-white max-w-2xl mx-auto">Access farming guides, tutorials and educational resources to grow your knowledge</p>
+                        <div class="mt-6 relative max-w-md mx-auto">
+                            <input type="text" placeholder="Search learning resources..." class="w-full px-4 py-3 rounded-full focus:outline-none">
+                            <button class="absolute right-2 top-1/2 transform -translate-y-1/2 bg-primary text-white p-2 rounded-full">
+                                <i data-feather="search" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="grid md:grid-cols-4 gap-8 p-6">
+                <!-- Main Content -->
+                <section class="md:col-span-3">
+                    <!-- Categories -->
+                    <div class="flex flex-wrap gap-2 mb-6">
+                        <button class="category-btn active px-4 py-2 bg-gradient-to-r from-primary to-accent text-white rounded-full text-sm">
+                            All Resources
+                        </button>
+                        <button class="category-btn px-4 py-2 bg-white border rounded-full text-sm flex items-center">
+                            <i data-feather="book" class="w-4 h-4 mr-1"></i> Guides
+                        </button>
+                        <button class="category-btn px-4 py-2 bg-white border rounded-full text-sm flex items-center">
+                            <i data-feather="film" class="w-4 h-4 mr-1"></i> Videos
+                        </button>
+                        <button class="category-btn px-4 py-2 bg-white border rounded-full text-sm flex items-center">
+                            <i data-feather="file-text" class="w-4 h-4 mr-1"></i> Articles
+                        </button>
+                        <button class="category-btn px-4 py-2 bg-white border rounded-full text-sm flex items-center">
+                            <i data-feather="award" class="w-4 h-4 mr-1"></i> Certifications
+                        </button>
+                    </div>
+
+                    <!-- Resources Grid -->
+                    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <!-- Resource Card 1 -->
+                        <div class="resource-card bg-white rounded-xl shadow overflow-hidden hover:shadow-lg">
+                            <div class="relative h-48 overflow-hidden">
+                                <img class="w-full h-full object-cover" src="http://static.photos/agriculture/640x360/101" alt="Organic farming techniques">
+                                <span class="absolute top-2 left-2 bg-white text-primary text-xs px-2 py-1 rounded">Guide</span>
+                            </div>
+                            <div class="p-4">
+                                <h3 class="font-semibold text-gray-800 mb-2">Organic Farming Techniques</h3>
+                                <p class="text-sm text-gray-600 mb-3">Learn sustainable practices for chemical-free cultivation.</p>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-xs text-gray-500"><i data-feather="clock" class="w-3 h-3 inline mr-1"></i> 15 min read</span>
+                                    <a href="#" class="text-sm bg-gradient-to-r from-primary to-accent text-white px-3 py-1 rounded-full hover:opacity-90">Read More</a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Resource Card 2 -->
+                        <div class="resource-card bg-white rounded-xl shadow overflow-hidden hover:shadow-lg">
+                            <div class="relative h-48 overflow-hidden">
+                                <img class="w-full h-full object-cover" src="http://static.photos/agriculture/640x360/102" alt="Crop rotation guide">
+                                <span class="absolute top-2 left-2 bg-white text-primary text-xs px-2 py-1 rounded">Video</span>
+                            </div>
+                            <div class="p-4">
+                                <h3 class="font-semibold text-gray-800 mb-2">Crop Rotation Guide</h3>
+                                <p class="text-sm text-gray-600 mb-3">Maximize soil health and yield with proper crop sequencing.</p>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-xs text-gray-500"><i data-feather="clock" class="w-3 h-3 inline mr-1"></i> 8 min video</span>
+                                    <a href="#" class="text-sm bg-gradient-to-r from-primary to-accent text-white px-3 py-1 rounded-full hover:opacity-90">Watch Now</a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Resource Card 3 -->
+                        <div class="resource-card bg-white rounded-xl shadow overflow-hidden hover:shadow-lg">
+                            <div class="relative h-48 overflow-hidden">
+                                <img class="w-full h-full object-cover" src="http://static.photos/agriculture/640x360/103" alt="Soil nutrition">
+                                <span class="absolute top-2 left-2 bg-white text-primary text-xs px-2 py-1 rounded">Article</span>
+                            </div>
+                            <div class="p-4">
+                                <h3 class="font-semibold text-gray-800 mb-2">Soil Nutrition Fundamentals</h3>
+                                <p class="text-sm text-gray-600 mb-3">Understanding soil composition and nutrient management.</p>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-xs text-gray-500"><i data-feather="clock" class="w-3 h-3 inline mr-1"></i> 12 min read</span>
+                                    <a href="#" class="text-sm bg-gradient-to-r from-primary to-accent text-white px-3 py-1 rounded-full hover:opacity-90">Read More</a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Resource Card 4 -->
+                        <div class="resource-card bg-white rounded-xl shadow overflow-hidden hover:shadow-lg">
+                            <div class="relative h-48 overflow-hidden">
+                                <img class="w-full h-full object-cover" src="http://static.photos/agriculture/640x360/104" alt="Pest control">
+                                <span class="absolute top-2 left-2 bg-white text-primary text-xs px-2 py-1 rounded">Guide</span>
+                            </div>
+                            <div class="p-4">
+                                <h3 class="font-semibold text-gray-800 mb-2">Organic Pest Control</h3>
+                                <p class="text-sm text-gray-600 mb-3">Natural methods to protect your crops without chemicals.</p>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-xs text-gray-500"><i data-feather="clock" class="w-3 h-3 inline mr-1"></i> 10 min read</span>
+                                    <a href="#" class="text-sm bg-gradient-to-r from-primary to-accent text-white px-3 py-1 rounded-full hover:opacity-90">Learn More</a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Resource Card 5 -->
+                        <div class="resource-card bg-white rounded-xl shadow overflow-hidden hover:shadow-lg">
+                            <div class="relative h-48 overflow-hidden">
+                                <img class="w-full h-full object-cover" src="http://static.photos/agriculture/640x360/105" alt="Irrigation systems">
+                                <span class="absolute top-2 left-2 bg-white text-primary text-xs px-2 py-1 rounded">Video</span>
+                            </div>
+                            <div class="p-4">
+                                <h3 class="font-semibold text-gray-800 mb-2">Modern Irrigation Systems</h3>
+                                <p class="text-sm text-gray-600 mb-3">Water conservation techniques for efficient farming.</p>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-xs text-gray-500"><i data-feather="clock" class="w-3 h-3 inline mr-1"></i> 14 min video</span>
+                                    <a href="#" class="text-sm bg-gradient-to-r from-primary to-accent text-white px-3 py-1 rounded-full hover:opacity-90">Watch Now</a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Resource Card 6 -->
+                        <div class="resource-card bg-white rounded-xl shadow overflow-hidden hover:shadow-lg">
+                            <div class="relative h-48 overflow-hidden">
+                                <img class="w-full h-full object-cover" src="http://static.photos/agriculture/640x360/106" alt="Government schemes">
+                                <span class="absolute top-2 left-2 bg-white text-primary text-xs px-2 py-1 rounded">Article</span>
+                            </div>
+                            <div class="p-4">
+                                <h3 class="font-semibold text-gray-800 mb-2">Government Farming Schemes</h3>
+                                <p class="text-sm text-gray-600 mb-3">Complete guide to available subsidies and support.</p>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-xs text-gray-500"><i data-feather="clock" class="w-3 h-3 inline mr-1"></i> 18 min read</span>
+                                    <a href="#" class="text-sm bg-gradient-to-r from-primary to-accent text-white px-3 py-1 rounded-full hover:opacity-90">Read More</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Pagination -->
+                    <div class="mt-8 flex justify-center space-x-2">
+                        <button class="px-4 py-2 bg-white border rounded-lg hover:bg-gray-50 flex items-center">
+                            <i data-feather="chevron-left" class="w-4 h-4 mr-1"></i> Previous
+                        </button>
+                        <button class="px-4 py-2 bg-gradient-to-r from-primary to-accent text-white rounded-lg">1</button>
+                        <button class="px-4 py-2 bg-white border rounded-lg hover:bg-gray-50">2</button>
+                        <button class="px-4 py-2 bg-white border rounded-lg hover:bg-gray-50">3</button>
+                        <button class="px-4 py-2 bg-white border rounded-lg hover:bg-gray-50 flex items-center">
+                            Next <i data-feather="chevron-right" class="w-4 h-4 ml-1"></i>
+                        </button>
+                    </div>
+                </section>
+
+                <!-- Sidebar -->
+                <aside class="space-y-6">
+                    <!-- Popular Resources -->
+                    <div class="bg-white rounded-xl shadow p-6">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+                            <i data-feather="trending-up" class="w-5 h-5 mr-2 text-primary"></i>
+                            Popular Resources
+                        </h3>
+                        <ul class="space-y-3">
+                            <li>
+                                <a href="#" class="flex items-start p-3 hover:bg-gray-50 rounded-lg transition">
+                                    <div class="w-12 h-12 rounded-full bg-gray-100 overflow-hidden mr-3 flex-shrink-0">
+                                        <img src="http://static.photos/agriculture/120x120/107" alt="thumbnail" class="w-full h-full object-cover">
+                                    </div>
+                                    <div>
+                                        <h4 class="font-medium text-sm">Climate-Smart Farming</h4>
+                                        <p class="text-xs text-gray-500 mt-1">2.4k views</p>
+                                    </div>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#" class="flex items-start p-3 hover:bg-gray-50 rounded-lg transition">
+                                    <div class="w-12 h-12 rounded-full bg-gray-100 overflow-hidden mr-3 flex-shrink-0">
+                                        <img src="http://static.photos/agriculture/120x120/108" alt="thumbnail" class="w-full h-full object-cover">
+                                    </div>
+                                    <div>
+                                        <h4 class="font-medium text-sm">Vermicomposting Guide</h4>
+                                        <p class="text-xs text-gray-500 mt-1">1.8k views</p>
+                                    </div>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#" class="flex items-start p-3 hover:bg-gray-50 rounded-lg transition">
+                                    <div class="w-12 h-12 rounded-full bg-gray-100 overflow-hidden mr-3 flex-shrink-0">
+                                        <img src="http://static.photos/agriculture/120x120/109" alt="thumbnail" class="w-full h-full object-cover">
+                                    </div>
+                                    <div>
+                                        <h4 class="font-medium text-sm">Precision Farming Tech</h4>
+                                        <p class="text-xs text-gray-500 mt-1">1.5k views</p>
+                                    </div>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Learning Paths -->
+                    <div class="bg-white rounded-xl shadow p-6">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+                            <i data-feather="layers" class="w-5 h-5 mr-2 text-primary"></i>
+                            Learning Paths
+                        </h3>
+                        <ul class="space-y-3">
+                            <li>
+                                <a href="#" class="flex items-center p-3 hover:bg-gray-50 rounded-lg transition">
+                                    <span class="w-8 h-8 rounded-full bg-green-100 text-primary flex items-center justify-center mr-3">
+                                        <i data-feather="award" class="w-4 h-4"></i>
+                                    </span>
+                                    <span class="font-medium text-sm">Beginner Farming</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#" class="flex items-center p-3 hover:bg-gray-50 rounded-lg transition">
+                                    <span class="w-8 h-8 rounded-full bg-green-100 text-primary flex items-center justify-center mr-3">
+                                        <i data-feather="award" class="w-4 h-4"></i>
+                                    </span>
+                                    <span class="font-medium text-sm">Organic Certification</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#" class="flex items-center p-3 hover:bg-gray-50 rounded-lg transition">
+                                    <span class="w-8 h-8 rounded-full bg-green-100 text-primary flex items-center justify-center mr-3">
+                                        <i data-feather="award" class="w-4 h-4"></i>
+                                    </span>
+                                    <span class="font-medium text-sm">Advanced Techniques</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Newsletter -->
+                    <div class="bg-white rounded-xl shadow p-6">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+                            <i data-feather="mail" class="w-5 h-5 mr-2 text-primary"></i>
+                            Get Updates
+                        </h3>
+                        <p class="text-sm text-gray-600 mb-4">Subscribe to our farming newsletter for new resources</p>
+                        <form class="space-y-3">
+                            <input type="email" placeholder="Your email" class="w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary">
+                            <button type="submit" class="w-full bg-gradient-to-r from-primary to-accent text-white px-4 py-2 rounded-lg hover:opacity-90 text-sm flex items-center justify-center">
+                                <i data-feather="send" class="w-4 h-4 mr-2"></i> Subscribe
+                            </button>
+                        </form>
+                    </div>
+                </aside>
+            </div>
+        </div>
+    </main>
+
+    <custom-footer></custom-footer>
+
+    <script src="script.js"></script>
+    <script>
+        feather.replace();
+
+        // Mobile menu toggle for the navbar
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+        mobileMenuButton?.addEventListener('click', () => mobileMenu.classList.toggle('hidden'));
+
+        // Category filter functionality
+        document.querySelectorAll('.category-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelector('.category-btn.active')?.classList.remove('active');
+                this.classList.add('active');
+            });
+        });
+
+        // Resource card hover effects
+        document.querySelectorAll('.resource-card').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.querySelector('img').style.transform = 'scale(1.05)';
+            });
+            card.addEventListener('mouseleave', function() {
+                this.querySelector('img').style.transform = 'scale(1)';
+            });
+        });
+    </script>
+</body>
+</html>

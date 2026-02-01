@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up • Krishi Mitra</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <script src="https://unpkg.com/feather-icons"></script>
+    <script src="components/navbar.js"></script>
+    <script src="components/footer.js"></script>
+    <style>
+        body {
+            background-color: #f8fafc;
+        }
+        .form-card {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .section-title {
+            position: relative;
+            padding-bottom: 0.5rem;
+        }
+        .section-title:after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 40px;
+            height: 3px;
+            background: linear-gradient(to right, #16a34a, #22c55e);
+            border-radius: 3px;
+        }
+        .checkbox-label {
+            transition: all 0.2s ease;
+        }
+        .checkbox-label:hover {
+            transform: translateY(-1px);
+            background: #f3f4f6;
+        }
+        .checkbox-input:checked + .checkbox-custom {
+            background-color: #16a34a;
+            border-color: #16a34a;
+        }
+    </style>
+    <script>
+      tailwind && (tailwind.config = {
+        theme: { extend: { fontFamily: { poppins: ['Poppins','sans-serif'] }, colors: { primary:'#16A34A', accent:'#15803D' } } }
+      });
+    </script>
+  </head>
+  <body class="font-poppins">
+    <!-- App Navbar (same as other pages) -->
+    <nav class="bg-white shadow-md sticky top-0 z-50">
+      <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+        <a href="{% url 'home' %}" class="flex items-center space-x-2">
+          <i data-feather="sun" class="text-primary"></i>
+          <span class="text-xl font-bold text-primary">Krishi <span>Mitra</span></span>
+        </a>
+        <div class="hidden md:flex space-x-6">
+          <a href="{% url 'dashboard' %}" class="text-gray-700 hover:text-primary transition flex items-center"><i data-feather="grid" class="w-4 h-4 mr-1"></i>Dashboard</a>
+          <a href="{% url 'forum' %}" class="text-gray-700 hover:text-primary transition flex items-center"><i data-feather="message-square" class="w-4 h-4 mr-1"></i>Forum</a>
+          <a href="{% url 'chatbot' %}" class="text-gray-700 hover:text-primary transition flex items-center"><i data-feather="cpu" class="w-4 h-4 mr-1"></i>Chatbot</a>
+          <a href="{% url 'weather_updates' %}" class="text-gray-700 hover:text-primary transition flex items-center"><i data-feather="cloud" class="w-4 h-4 mr-1"></i>Weather</a>
+          <a href="{% url 'learning' %}" class="text-gray-700 hover:text-primary transition flex items-center"><i data-feather="book-open" class="w-4 h-4 mr-1"></i>Learning</a>
+          <a href="{% url 'schemes' %}" class="text-gray-700 hover:text-primary transition flex items-center"><i data-feather="award" class="w-4 h-4 mr-1"></i>Schemes</a>
+          <a href="{% url 'profile_page' %}" class="text-gray-700 hover:text-primary transition flex items-center"><i data-feather="user" class="w-4 h-4 mr-1"></i>Profile</a>
+          <a href="{% url 'settings_page' %}" class="text-gray-700 hover:text-primary transition flex items-center"><i data-feather="settings" class="w-4 h-4 mr-1"></i>Settings</a>
+        </div>
+        <div class="hidden md:block">
+          {% if request.user.is_authenticated %}
+            <a href="{% url 'logout' %}" class="text-primary hover:text-accent">Logout</a>
+          {% else %}
+            <a href="{% url 'login' %}" class="text-primary hover:text-accent">Login</a>
+          {% endif %}
+        </div>
+        <button class="md:hidden focus:outline-none" id="mobile-menu-button">
+          <i data-feather="menu"></i>
+        </button>
+      </div>
+      <!-- Mobile Menu -->
+      <div class="md:hidden hidden bg-white py-2 px-4 shadow-lg" id="mobile-menu">
+        <a href="{% url 'dashboard' %}" class="block py-2 text-gray-700 hover:text-primary flex items-center"><i data-feather="grid" class="w-4 h-4 mr-2"></i>Dashboard</a>
+        <a href="{% url 'forum' %}" class="block py-2 text-gray-700 hover:text-primary flex items-center"><i data-feather="message-square" class="w-4 h-4 mr-2"></i>Forum</a>
+        <a href="{% url 'chatbot' %}" class="block py-2 text-gray-700 hover:text-primary flex items-center"><i data-feather="cpu" class="w-4 h-4 mr-2"></i>Chatbot</a>
+        <a href="{% url 'weather_updates' %}" class="block py-2 text-gray-700 hover:text-primary flex items-center"><i data-feather="cloud" class="w-4 h-4 mr-2"></i>Weather</a>
+        <a href="{% url 'learning' %}" class="block py-2 text-gray-700 hover:text-primary flex items-center"><i data-feather="book-open" class="w-4 h-4 mr-2"></i>Learning</a>
+        <a href="{% url 'schemes' %}" class="block py-2 text-gray-700 hover:text-primary flex items-center"><i data-feather="award" class="w-4 h-4 mr-2"></i>Schemes</a>
+        <a href="{% url 'profile_page' %}" class="block py-2 text-gray-700 hover:text-primary flex items-center"><i data-feather="user" class="w-4 h-4 mr-2"></i>Profile</a>
+        <a href="{% url 'settings_page' %}" class="block py-2 text-gray-700 hover:text-primary flex items-center"><i data-feather="settings" class="w-4 h-4 mr-2"></i>Settings</a>
+        {% if request.user.is_authenticated %}
+          <a href="{% url 'logout' %}" class="block py-2 text-gray-700 hover:text-primary">Logout</a>
+        {% else %}
+          <a href="{% url 'login' %}" class="block py-2 text-gray-700 hover:text-primary">Login</a>
+        {% endif %}
+      </div>
+    </nav>
+
+    <main class="container mx-auto px-4 py-16">
+      <!-- Messages -->
+      {% if messages %}
+        <div class="max-w-3xl mx-auto mb-4">
+          {% for message in messages %}
+            <div class="mb-2 px-4 py-3 rounded {{ message.tags|default:'info' }}"
+                 style="background:#ecfdf5; color:#065f46;">
+              {{ message }}
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+        <!-- Hero Section -->
+        <div class="relative bg-cover bg-center h-48" style="background-image: url('http://static.photos/agriculture/1200x630/70')">
+          <div class="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center">
+            <h1 class="text-3xl md:text-4xl font-bold text-white text-center">Join Our Farming Community</h1>
+          </div>
+        </div>
+        
+        <div class="grid md:grid-cols-3 gap-8 p-6">
+          <!-- Main Form Content -->
+          <section class="md:col-span-2">
+            <form class="bg-white rounded-xl p-6 form-card" method="post" action="">
+              {% csrf_token %}
+              <!-- Basic Information Section -->
+              <div class="mb-8">
+                <h2 class="text-xl font-semibold text-gray-800 mb-6 section-title">Basic Information</h2>
+                <div class="grid md:grid-cols-2 gap-6">
+                  <div>
+                    <label for="full_name" class="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                    <div class="relative">
+                      <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i data-feather="user" class="w-5 h-5 text-gray-400"></i>
+                      </div>
+                      <input id="full_name" name="full_name" type="text" required 
+                        class="w-full pl-10 border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" 
+                        placeholder="Your full name" />
+                    </div>
+                  </div>
+                  <div>
+                    <label for="contact" class="block text-sm font-medium text-gray-700 mb-1">Mobile/Email</label>
+                    <div class="relative">
+                      <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i data-feather="smartphone" class="w-5 h-5 text-gray-400"></i>
+                      </div>
+                      <input id="contact" name="contact" type="text" required 
+                        class="w-full pl-10 border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" 
+                        placeholder="Phone or email" />
+                    </div>
+                  </div>
+                  <div>
+                    <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email (optional)</label>
+                    <div class="relative">
+                      <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i data-feather="mail" class="w-5 h-5 text-gray-400"></i>
+                      </div>
+                      <input id="email" name="email" type="email" 
+                        class="w-full pl-10 border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" 
+                        placeholder="you@example.com" />
+                    </div>
+                  </div>
+                  <div>
+                    <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                    <div class="relative">
+                      <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i data-feather="lock" class="w-5 h-5 text-gray-400"></i>
+                      </div>
+                      <input id="password" name="password" type="password" required 
+                        class="w-full pl-10 border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" 
+                        placeholder="Create password" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Location Details Section -->
+              <div class="mb-8">
+                <h2 class="text-xl font-semibold text-gray-800 mb-6 section-title">Location Details</h2>
+                <div class="grid md:grid-cols-2 gap-6">
+                  <div>
+                    <label for="state" class="block text-sm font-medium text-gray-700 mb-1">State/Region</label>
+                    <div class="relative">
+                      <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i data-feather="map-pin" class="w-5 h-5 text-gray-400"></i>
+                      </div>
+                      <select id="state" name="state" required 
+                        class="w-full pl-10 border border-gray-300 rounded-lg px-4 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                        <option value="" disabled selected>Select your state</option>
+                        <option value="AN">Andaman and Nicobar Islands</option>
+                        <option value="AP">Andhra Pradesh</option>
+                        <!-- Other state options -->
+                        <option value="MH">Maharashtra</option>
+                        <option value="KA">Karnataka</option>
+                        <option value="GJ">Gujarat</option>
+                        <option value="UP">Uttar Pradesh</option>
+                        <option value="WB">West Bengal</option>
+                        <option value="RJ">Rajasthan</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div>
+                    <label for="district_village" class="block text-sm font-medium text-gray-700 mb-1">District/Village</label>
+                    <div class="relative">
+                      <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i data-feather="home" class="w-5 h-5 text-gray-400"></i>
+                      </div>
+                      <input id="district_village" name="district_village" type="text" 
+                        class="w-full pl-10 border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" 
+                        placeholder="Your district or village" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Farming Details Section -->
+              <div class="mb-8">
+                <h2 class="text-xl font-semibold text-gray-800 mb-6 section-title">Farming Details</h2>
+                <div class="space-y-4">
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Type of Farming</label>
+                    <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                      <label class="checkbox-label flex items-center space-x-2 p-2 border rounded-lg cursor-pointer">
+                        <input type="checkbox" name="farming_types" value="crop" class="checkbox-input hidden">
+                        <span class="checkbox-custom w-5 h-5 border border-gray-300 rounded flex items-center justify-center">
+                          <i data-feather="check" class="w-4 h-4 text-white hidden"></i>
+                        </span>
+                        <span>Crop Farming</span>
+                      </label>
+                      <label class="checkbox-label flex items-center space-x-2 p-2 border rounded-lg cursor-pointer">
+                        <input type="checkbox" name="farming_types" value="dairy" class="checkbox-input hidden">
+                        <span class="checkbox-custom w-5 h-5 border border-gray-300 rounded flex items-center justify-center">
+                          <i data-feather="check" class="w-4 h-4 text-white hidden"></i>
+                        </span>
+                        <span>Dairy</span>
+                      </label>
+                      <label class="checkbox-label flex items-center space-x-2 p-2 border rounded-lg cursor-pointer">
+                        <input type="checkbox" name="farming_types" value="poultry" class="checkbox-input hidden">
+                        <span class="checkbox-custom w-5 h-5 border border-gray-300 rounded flex items-center justify-center">
+                          <i data-feather="check" class="w-4 h-4 text-white hidden"></i>
+                        </span>
+                        <span>Poultry</span>
+                      </label>
+                      <label class="checkbox-label flex items-center space-x-2 p-2 border rounded-lg cursor-pointer">
+                        <input type="checkbox" name="farming_types" value="horticulture" class="checkbox-input hidden">
+                        <span class="checkbox-custom w-5 h-5 border border-gray-300 rounded flex items-center justify-center">
+                          <i data-feather="check" class="w-4 h-4 text-white hidden"></i>
+                        </span>
+                        <span>Horticulture</span>
+                      </label>
+                      <label class="checkbox-label flex items-center space-x-2 p-2 border rounded-lg cursor-pointer">
+                        <input type="checkbox" name="farming_types" value="mixed" class="checkbox-input hidden">
+                        <span class="checkbox-custom w-5 h-5 border border-gray-300 rounded flex items-center justify-center">
+                          <i data-feather="check" class="w-4 h-4 text-white hidden"></i>
+                        </span>
+                        <span>Mixed/Other</span>
+                      </label>
+                    </div>
+                  </div>
+                  <div class="grid md:grid-cols-2 gap-6">
+                    <div>
+                      <label for="main_crops" class="block text-sm font-medium text-gray-700 mb-1">Main Crops</label>
+                      <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                          <i data-feather="package" class="w-5 h-5 text-gray-400"></i>
+                        </div>
+                        <input id="main_crops" name="main_crops" type="text" 
+                          class="w-full pl-10 border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" 
+                          placeholder="Wheat, Rice, etc." />
+                      </div>
+                    </div>
+                    <div>
+                      <label for="farm_size" class="block text-sm font-medium text-gray-700 mb-1">Farm Size</label>
+                      <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                          <i data-feather="flag" class="w-5 h-5 text-gray-400"></i>
+                        </div>
+                        <input id="farm_size" name="farm_size" type="number" step="0.01" 
+                          class="w-full pl-10 border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" 
+                          placeholder="Acres/hectares" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Preferences Section -->
+              <div class="mb-8">
+                <h2 class="text-xl font-semibold text-gray-800 mb-6 section-title">Preferences</h2>
+                <div>
+                  <label for="preferred_language" class="block text-sm font-medium text-gray-700 mb-1">Language</label>
+                  <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <i data-feather="globe" class="w-5 h-5 text-gray-400"></i>
+                    </div>
+                    <select id="preferred_language" name="preferred_language" 
+                      class="w-full pl-10 border border-gray-300 rounded-lg px-4 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                      <option value="hi">Hindi</option>
+                      <option value="en" selected>English</option>
+                      <option value="mr">Marathi</option>
+                      <option value="ta">Tamil</option>
+                      <option value="te">Telugu</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Submit Button -->
+              <div class="mt-8">
+                <button type="submit" class="w-full bg-gradient-to-r from-primary to-accent text-white py-3 rounded-lg font-semibold hover:shadow-lg transition flex items-center justify-center space-x-2">
+                  <span>Create Account</span>
+                  <i data-feather="arrow-right" class="w-5 h-5"></i>
+                </button>
+              </div>
+
+              <!-- Login Link -->
+              <div class="mt-4 text-center text-sm text-gray-600">
+                Already have an account? 
+                <a href="{% url 'login' %}" class="text-primary font-medium hover:text-accent hover:underline">Login here</a>
+              </div>
+            </form>
+          </section>
+
+          <!-- Sidebar -->
+          <aside class="space-y-6">
+            <!-- Benefits Section -->
+            <div class="bg-white rounded-xl shadow p-6">
+              <h3 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+                <i data-feather="award" class="w-5 h-5 mr-2 text-primary"></i>
+                Why Join Us?
+              </h3>
+              <ul class="space-y-3 text-sm text-gray-600">
+                <li class="flex items-start">
+                  <i data-feather="check-circle" class="text-primary mr-2 mt-1 flex-shrink-0"></i>
+                  <span>Connect with farming experts and peers</span>
+                </li>
+                <li class="flex items-start">
+                  <i data-feather="check-circle" class="text-primary mr-2 mt-1 flex-shrink-0"></i>
+                  <span>Get personalized farming advice</span>
+                </li>
+                <li class="flex items-start">
+                  <i data-feather="check-circle" class="text-primary mr-2 mt-1 flex-shrink-0"></i>
+                  <span>Access weather forecasts and alerts</span>
+                </li>
+                <li class="flex items-start">
+                  <i data-feather="check-circle" class="text-primary mr-2 mt-1 flex-shrink-0"></i>
+                  <span>Learn about government schemes</span>
+                </li>
+                <li class="flex items-start">
+                  <i data-feather="check-circle" class="text-primary mr-2 mt-1 flex-shrink-0"></i>
+                  <span>Share and get farming resources</span>
+                </li>
+              </ul>
+            </div>
+
+            <!-- Testimonials -->
+            <div class="bg-white rounded-xl shadow p-6">
+              <h3 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+                <i data-feather="users" class="w-5 h-5 mr-2 text-primary"></i>
+                What Farmers Say
+              </h3>
+              <div class="space-y-4">
+                <div class="flex items-start">
+                  <div class="w-10 h-10 rounded-full bg-gray-200 mr-3"></div>
+                  <div>
+                    <p class="text-sm text-gray-600 italic">"Krishi Mitra helped me double my crop yield with their expert advice!"</p>
+                    <p class="text-xs text-gray-500 mt-1">- Ramesh, Farmer from Maharashtra</p>
+                  </div>
+                </div>
+                <div class="flex items-start">
+                  <div class="w-10 h-10 rounded-full bg-gray-200 mr-3"></div>
+                  <div>
+                    <p class="text-sm text-gray-600 italic">"The weather alerts saved my crops from unexpected rains."</p>
+                    <p class="text-xs text-gray-500 mt-1">- Sunita, Farmer from Punjab</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Quick Links -->
+            <div class="bg-white rounded-xl shadow p-6">
+              <h3 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+                <i data-feather="link" class="w-5 h-5 mr-2 text-primary"></i>
+                Quick Links
+              </h3>
+              <ul class="space-y-3">
+                <li>
+                  <a href="{% url 'forum' %}" class="flex items-center p-3 hover:bg-gray-50 rounded-lg transition">
+                    <span class="w-8 h-8 rounded-full bg-green-100 text-primary flex items-center justify-center mr-3">
+                      <i data-feather="message-square" class="w-4 h-4"></i>
+                    </span>
+                    <span class="font-medium">Community Forum</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="{% url 'learning' %}" class="flex items-center p-3 hover:bg-gray-50 rounded-lg transition">
+                    <span class="w-8 h-8 rounded-full bg-green-100 text-primary flex items-center justify-center mr-3">
+                      <i data-feather="book" class="w-4 h-4"></i>
+                    </span>
+                    <span class="font-medium">Learning Resources</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="{% url 'schemes' %}" class="flex items-center p-3 hover:bg-gray-50 rounded-lg transition">
+                    <span class="w-8 h-8 rounded-full bg-green-100 text-primary flex items-center justify-center mr-3">
+                      <i data-feather="award" class="w-4 h-4"></i>
+                    </span>
+                    <span class="font-medium">Government Schemes</span>
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </main>
+
+    <custom-footer></custom-footer>
+
+    <script>
+        feather.replace();
+        // Mobile menu toggle for the navbar
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+        mobileMenuButton?.addEventListener('click', () => mobileMenu.classList.toggle('hidden'));
+        
+        // Checkbox functionality (visual only)
+        document.querySelectorAll('.checkbox-label').forEach(label => {
+            const input = label.querySelector('.checkbox-input');
+            const customCheckbox = label.querySelector('.checkbox-custom');
+            const checkIcon = customCheckbox.querySelector('i');
+            
+            input.addEventListener('change', () => {
+                if (input.checked) {
+                    checkIcon.classList.remove('hidden');
+                } else {
+                    checkIcon.classList.add('hidden');
+                }
+            });
+            if (input.checked) {
+                checkIcon.classList.remove('hidden');
+            }
+        });
+    </script>
+  </body>
+  </html>

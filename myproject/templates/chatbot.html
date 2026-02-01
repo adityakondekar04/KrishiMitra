@@ -1,0 +1,320 @@
+{% extends 'base.html' %}
+{% block title %}AI Chatbot • Krishi Mitra{% endblock %}
+{% block content %}
+<main class="container mx-auto px-4 py-8">
+  <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+    <!-- Hero Section -->
+    <div class="relative bg-cover bg-center h-48" style="background-image: url('https://agritechdigest.com/wp-content/uploads/2025/05/AI-Chatbot.webp')">
+      <div class="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center">
+        <h1 class="text-3xl md:text-4xl font-bold text-white text-center">AI Farming Assistant</h1>
+      </div>
+    </div>
+
+    <div class="grid md:grid-cols-4 gap-8 p-6 relative">
+      <!-- Toggle button for history (visible on all, useful on mobile) -->
+      <button id="toggleHistory" type="button" class="md:hidden absolute -left-2 top-2 z-30 bg-white border rounded-full px-3 py-1 text-sm shadow flex items-center gap-2">
+        <i data-feather="menu" class="w-4 h-4"></i>
+        History
+      </button>
+
+      <!-- Slide-in Conversations Sidebar (ChatGPT-style) -->
+      <aside id="historySidebar" class="space-y-3 md:space-y-3 md:static md:translate-x-0 md:bg-transparent md:shadow-none md:w-auto md:h-auto fixed left-0 top-0 h-full w-72 bg-white shadow-xl transform -translate-x-full transition-transform duration-200 z-40">
+        <div class="flex items-center justify-between">
+          <h3 class="text-lg font-semibold text-gray-800">Chats</h3>
+          <a href="{% url 'chatbot' %}" class="text-sm text-primary hover:underline">New chat</a>
+        </div>
+        <ul class="space-y-1 text-sm">
+          {% for conv in conversations %}
+            <li>
+              <a href="{% url 'chatbot' %}?c={{ conv.id }}" class="block px-3 py-2 rounded hover:bg-gray-50 {% if active_conversation and active_conversation.id == conv.id %}bg-gray-100{% endif %}">
+                {{ conv.title|default:'Untitled' }}
+                <span class="block text-xs text-gray-500">{{ conv.updated_at|date:'M d, H:i' }}</span>
+              </a>
+            </li>
+          {% empty %}
+            <li class="text-gray-500">No chats yet.</li>
+          {% endfor %}
+        </ul>
+      </aside>
+      <div id="historyBackdrop" class="md:hidden hidden fixed inset-0 bg-black/30 z-30"></div>
+
+      <!-- Main Chat Content -->
+      <section class="md:col-span-2">
+        <div class="bg-white rounded-xl shadow p-6">
+          <!-- Chat history window -->
+          <div id="chatWindow" class="chat-window space-y-4 mb-4 p-4 bg-gray-50 rounded-lg" style="height: calc(70vh - 120px); min-height: 320px; overflow-y:auto;">
+            {% if chat_history and chat_history|length > 0 %}
+              {% for turn in chat_history %}
+                {% if turn.role == 'assistant' %}
+                  <div class="flex items-start space-x-3">
+                    <div class="w-8 h-8 rounded-full bg-green-100 text-primary flex items-center justify-center">🤖</div>
+                    <div class="message-bubble bot-message bg-white border rounded-xl p-3 text-sm text-gray-800 whitespace-pre-line">{{ turn.text }}</div>
+                  </div>
+                {% else %}
+                  <div class="flex flex-col items-end space-y-2">
+                    <div class="message-bubble user-message bg-gray-100 border border-gray-200 text-gray-800">{{ turn.text }}</div>
+                  </div>
+                {% endif %}
+              {% endfor %}
+            {% else %}
+              <div class="flex items-start space-x-3">
+                <div class="w-8 h-8 rounded-full bg-green-100 text-primary flex items-center justify-center">🤖</div>
+                <div class="message-bubble bot-message bg-white border rounded-xl p-3 text-sm text-gray-800">Hi! I'm your Krishi Mitra AI assistant. Ask me anything about crops, weather, pests, or government schemes. You can also attach photos for pest/disease identification.</div>
+              </div>
+            {% endif %}
+          </div>
+
+          <!-- Suggestions -->
+          <div class="mt-3 flex flex-wrap gap-2 mb-4">
+            <button class="suggestion-btn px-3 py-1.5 bg-white border rounded-lg hover:shadow-sm text-sm" data-suggest="Weather update for my location">
+              <i data-feather="cloud" class="w-4 h-4 mr-1 inline"></i> Weather
+            </button>
+            <button class="suggestion-btn px-3 py-1.5 bg-white border rounded-lg hover:shadow-sm text-sm" data-suggest="Best crop for Kharif season">
+              <i data-feather="leaf" class="w-4 h-4 mr-1 inline"></i> Crop advice
+            </button>
+            <button class="suggestion-btn px-3 py-1.5 bg-white border rounded-lg hover:shadow-sm text-sm" data-suggest="Organic pest control for tomato">
+              <i data-feather="bug" class="w-4 h-4 mr-1 inline"></i> Pest control
+            </button>
+            <button class="suggestion-btn px-3 py-1.5 bg-white border rounded-lg hover:shadow-sm text-sm" data-suggest="Government schemes for farmers">
+              <i data-feather="award" class="w-4 h-4 mr-1 inline"></i> Schemes
+            </button>
+          </div>
+
+          <!-- Attachment preview -->
+          <div id="attachmentPreview" class="attachment-preview mb-3 hidden">
+            <div class="inline-flex items-center space-x-2 border rounded-lg px-3 py-2 bg-white shadow-sm">
+              <img id="attachmentThumb" src="" alt="preview" class="w-12 h-12 object-cover rounded-lg"/>
+              <span id="attachmentName" class="text-sm text-gray-700 max-w-[200px] truncate"></span>
+              <button id="attachmentRemove" type="button" class="text-xs px-2 py-1 rounded bg-red-50 text-red-600 border border-red-200 hover:bg-red-100">Remove</button>
+            </div>
+          </div>
+
+          <!-- Input bar with language selector -->
+          <form id="chatForm" class="sticky bottom-0 bg-white border rounded-xl px-4 py-3 flex items-center gap-3 input-bar" enctype="multipart/form-data">
+            <label class="cursor-pointer text-gray-500 hover:text-primary transition">
+              <input id="imageInput" name="image" type="file" accept="image/*" class="hidden" />
+              <i data-feather="image" class="w-5 h-5"></i>
+            </label>
+            <select id="languageSelect" class="border rounded-lg text-sm px-2 py-1 text-gray-700">
+              {% for code, label in languages %}
+                <option value="{{ code }}" {% if code == selected_lang %}selected{% endif %}>{{ label }}</option>
+              {% endfor %}
+            </select>
+            <input id="chatInput" name="message" type="text" placeholder="Message Krishi Mitra AI..." class="flex-1 px-3 py-2 focus:outline-none text-sm" autocomplete="off" />
+            <button type="submit" class="bg-gradient-to-r from-primary to-accent text-white px-4 py-2 rounded-lg hover:opacity-90 flex items-center">
+              <span class="hidden md:inline">Send</span>
+              <i data-feather="send" class="w-5 h-5 md:ml-2"></i>
+            </button>
+            <input type="hidden" id="conversationId" value="{% if active_conversation %}{{ active_conversation.id }}{% endif %}" />
+          </form>
+        </div>
+      </section>
+
+      <!-- Tips/Capabilities Sidebar -->
+      <aside class="space-y-6">
+        <div class="bg-white rounded-xl shadow p-6">
+          <h3 class="text-xl font-semibold text-gray-800 mb-4 flex items-center"><i data-feather="zap" class="w-5 h-5 mr-2 text-primary"></i> AI Capabilities</h3>
+          <ul class="space-y-3 text-sm text-gray-600">
+            <li class="flex items-start"><i data-feather="check-circle" class="text-primary mr-2 mt-1 flex-shrink-0"></i><span>Crop recommendations based on soil & climate</span></li>
+            <li class="flex items-start"><i data-feather="check-circle" class="text-primary mr-2 mt-1 flex-shrink-0"></i><span>Pest and disease identification</span></li>
+            <li class="flex items-start"><i data-feather="check-circle" class="text-primary mr-2 mt-1 flex-shrink-0"></i><span>Weather forecasts and alerts</span></li>
+            <li class="flex items-start"><i data-feather="check-circle" class="text-primary mr-2 mt-1 flex-shrink-0"></i><span>Government scheme information</span></li>
+          </ul>
+        </div>
+        <div class="bg-white rounded-xl shadow p-6">
+          <h3 class="text-xl font-semibold text-gray-800 mb-4 flex items-center"><i data-feather="help-circle" class="w-5 h-5 mr-2 text-primary"></i> Example Queries</h3>
+          <ul class="space-y-3">
+            <li><button class="w-full text-left flex items-center p-3 hover:bg-gray-50 rounded-lg transition text-sm" data-suggest="How to improve soil fertility?"><span class="w-6 h-6 rounded-full bg-green-100 text-primary flex items-center justify-center mr-3"><i data-feather="arrow-right" class="w-3 h-3"></i></span><span class="text-gray-700">Soil fertility improvement</span></button></li>
+            <li><button class="w-full text-left flex items-center p-3 hover:bg-gray-50 rounded-lg transition text-sm" data-suggest="What are the current market prices for wheat?"><span class="w-6 h-6 rounded-full bg-green-100 text-primary flex items-center justify-center mr-3"><i data-feather="arrow-right" class="w-3 h-3"></i></span><span class="text-gray-700">Market prices</span></button></li>
+            <li><button class="w-full text-left flex items-center p-3 hover:bg-gray-50 rounded-lg transition text-sm" data-suggest="How to control whitefly infestation in cotton?"><span class="w-6 h-6 rounded-full bg-green-100 text-primary flex items-center justify-center mr-3"><i data-feather="arrow-right" class="w-3 h-3"></i></span><span class="text-gray-700">Pest control methods</span></button></li>
+          </ul>
+        </div>
+        <div class="bg-white rounded-xl shadow p-6">
+          <h3 class="text-xl font-semibold text-gray-800 mb-4 flex items-center"><i data-feather="info" class="w-5 h-5 mr-2 text-primary"></i> Tips for Best Results</h3>
+          <ul class="space-y-3 text-sm text-gray-600">
+            <li class="flex items-start"><i data-feather="check" class="text-primary mr-2 mt-1 flex-shrink-0"></i><span>Be specific with your questions</span></li>
+            <li class="flex items-start"><i data-feather="check" class="text-primary mr-2 mt-1 flex-shrink-0"></i><span>Attach photos for pest/disease identification</span></li>
+            <li class="flex items-start"><i data-feather="check" class="text-primary mr-2 mt-1 flex-shrink-0"></i><span>Mention your location for accurate weather info</span></li>
+          </ul>
+        </div>
+      </aside>
+    </div>
+  </div>
+</main>
+
+<script>
+  // Initialize feather icons
+  window.feather && feather.replace();
+
+  const chatWindow = document.getElementById('chatWindow');
+  const chatForm = document.getElementById('chatForm');
+  const chatInput = document.getElementById('chatInput');
+  const imageInput = document.getElementById('imageInput');
+  const languageSelect = document.getElementById('languageSelect');
+  const conversationIdEl = document.getElementById('conversationId');
+  const attachmentPreview = document.getElementById('attachmentPreview');
+  const attachmentThumb = document.getElementById('attachmentThumb');
+  const attachmentName = document.getElementById('attachmentName');
+  const attachmentRemove = document.getElementById('attachmentRemove');
+  let attachmentObjectUrl = null;
+
+  function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+  }
+
+  imageInput.addEventListener('change', () => {
+    const file = imageInput.files[0];
+    if (file) {
+      if (attachmentObjectUrl) URL.revokeObjectURL(attachmentObjectUrl);
+      attachmentObjectUrl = URL.createObjectURL(file);
+      attachmentThumb.src = attachmentObjectUrl;
+      attachmentName.textContent = file.name;
+      attachmentPreview.classList.remove('hidden');
+    }
+  });
+
+  attachmentRemove.addEventListener('click', () => {
+    imageInput.value = '';
+    if (attachmentObjectUrl) URL.revokeObjectURL(attachmentObjectUrl);
+    attachmentObjectUrl = null;
+    attachmentThumb.src = '';
+    attachmentName.textContent = '';
+    attachmentPreview.classList.add('hidden');
+  });
+
+  chatForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const text = chatInput.value.trim();
+    const file = imageInput.files[0];
+    const lang = languageSelect.value;
+    if (!text && !file) return;
+
+    // Render user message
+    const mineWrap = document.createElement('div');
+    mineWrap.className = 'flex flex-col items-end space-y-2';
+    if (text) {
+      const myText = document.createElement('div');
+      myText.className = 'message-bubble user-message bg-gray-100 border border-gray-200 text-gray-800';
+      myText.textContent = text;
+      mineWrap.appendChild(myText);
+    }
+    if (file && attachmentObjectUrl) {
+      const myImgCard = document.createElement('div');
+      myImgCard.className = 'max-w-[80%] border rounded-lg overflow-hidden shadow';
+      const imgEl = document.createElement('img');
+      imgEl.src = attachmentObjectUrl;
+      imgEl.alt = 'uploaded image';
+      imgEl.className = 'w-full max-h-64 object-contain';
+      myImgCard.appendChild(imgEl);
+      mineWrap.appendChild(myImgCard);
+    }
+    chatWindow.appendChild(mineWrap);
+    chatWindow.scrollTop = chatWindow.scrollHeight;
+    chatInput.value = '';
+    imageInput.value = '';
+    if (attachmentObjectUrl) URL.revokeObjectURL(attachmentObjectUrl);
+    attachmentObjectUrl = null;
+    attachmentThumb.src = '';
+    attachmentName.textContent = '';
+    attachmentPreview.classList.add('hidden');
+
+    // Build form data
+    const fd = new FormData();
+  if (text) fd.append('message', text);
+    if (file) fd.append('image', file, file.name);
+    if (lang) fd.append('language', lang);
+  const convId = (conversationIdEl.value || '').trim();
+  if (convId) fd.append('conversation_id', convId);
+
+    // Typing indicator
+    const typingWrap = document.createElement('div');
+    typingWrap.className = 'flex items-start space-x-3';
+    typingWrap.innerHTML = `
+      <div class="w-8 h-8 rounded-full bg-green-100 text-primary flex items-center justify-center">🤖</div>
+      <div class="message-bubble typing-indicator">Thinking…</div>`;
+    chatWindow.appendChild(typingWrap);
+    chatWindow.scrollTop = chatWindow.scrollHeight;
+
+    // Timeout controller (90s)
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 90000);
+
+    try {
+      const resp = await fetch('{% url "chatbot_api" %}', {
+        method: 'POST',
+        headers: { 'X-CSRFToken': getCookie('csrftoken'), 'Accept': 'application/json' },
+        body: fd,
+        signal: controller.signal
+      });
+      clearTimeout(timeoutId);
+
+      let data = null;
+      try { data = await resp.json(); }
+      catch (e) {
+        const txt = await resp.text();
+        typingWrap.innerHTML = `<div class="w-8 h-8 rounded-full bg-green-100 text-primary flex items-center justify-center">🤖</div><div class="message-bubble bot-message bg-red-50 border border-red-200 text-red-700">Unexpected response: ${txt.slice(0,300)}</div>`;
+        chatWindow.scrollTop = chatWindow.scrollHeight;
+        return;
+      }
+
+      if (!resp.ok) {
+        typingWrap.innerHTML = `<div class="w-8 h-8 rounded-full bg-green-100 text-primary flex items-center justify-center">🤖</div><div class="message-bubble bot-message bg-red-50 border border-red-200 text-red-700">Error: ${(data && (data.error||data.detail)) || ('HTTP '+resp.status)}</div>`;
+        chatWindow.scrollTop = chatWindow.scrollHeight;
+        return;
+      }
+
+      if (data && data.ok) {
+        typingWrap.innerHTML = `<div class="w-8 h-8 rounded-full bg-green-100 text-primary flex items-center justify-center">🤖</div><div class="message-bubble bot-message whitespace-pre-line">${(data.reply || '').replaceAll('<','&lt;')}</div>`;
+        // If this was a new chat, set and add to sidebar
+        if (!convId && data.conversation_id) {
+          conversationIdEl.value = data.conversation_id;
+          const ul = document.querySelector('#historySidebar ul');
+          if (ul) {
+            const li = document.createElement('li');
+            li.innerHTML = `<a href="{% url 'chatbot' %}?c=${data.conversation_id}" class="block px-3 py-2 rounded hover:bg-gray-50 bg-gray-100">${data.title || 'Untitled'}<span class="block text-xs text-gray-500">just now</span></a>`;
+            ul.prepend(li);
+          }
+        }
+      } else {
+        typingWrap.innerHTML = `<div class="w-8 h-8 rounded-full bg-green-100 text-primary flex items-center justify-center">🤖</div><div class="message-bubble bot-message bg-red-50 border border-red-200 text-red-700">${(data && data.error) ? ('Error: '+data.error) : 'Failed to get response'}</div>`;
+      }
+      chatWindow.scrollTop = chatWindow.scrollHeight;
+    } catch (err) {
+      clearTimeout(timeoutId);
+      const reason = (err && err.name === 'AbortError') ? 'Request timed out. Please try again.' : 'Network error. Please try again.';
+      typingWrap.innerHTML = `<div class="w-8 h-8 rounded-full bg-green-100 text-primary flex items-center justify-center">🤖</div><div class="message-bubble bot-message bg-red-50 border border-red-200 text-red-700">${reason}</div>`;
+      chatWindow.scrollTop = chatWindow.scrollHeight;
+    }
+  });
+
+  // Suggestion buttons
+  document.querySelectorAll('[data-suggest]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      chatInput.value = btn.dataset.suggest;
+      chatInput.focus();
+    });
+  });
+
+  // Autofocus
+  chatInput.focus();
+
+  // Sidebar toggle logic
+  const toggleBtn = document.getElementById('toggleHistory');
+  const sidebar = document.getElementById('historySidebar');
+  const backdrop = document.getElementById('historyBackdrop');
+  function openHistory() {
+    sidebar.classList.remove('-translate-x-full');
+    backdrop.classList.remove('hidden');
+  }
+  function closeHistory() {
+    sidebar.classList.add('-translate-x-full');
+    backdrop.classList.add('hidden');
+  }
+  toggleBtn?.addEventListener('click', () => {
+    if (sidebar.classList.contains('-translate-x-full')) openHistory(); else closeHistory();
+  });
+  backdrop?.addEventListener('click', closeHistory);
+</script>
+{% endblock %}
